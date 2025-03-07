@@ -11,6 +11,6 @@ public class Main {
         ProductDAO service = new ProductDAOImpl();
         StockManagementController stockManagementController = new StockManagementController(service);
         stockManagementController.start();
-
+        System.out.println("nesa");
     }
 }
