@@ -35,7 +35,7 @@ public class ProductDAOImpl implements ProductDAO {
 
     @Override
     public void updateProduct() {
-
+        System.out.println("testing with feature updata");
     }
 
     @Override
