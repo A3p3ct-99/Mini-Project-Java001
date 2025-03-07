@@ -11,6 +11,7 @@ import org.example.validation.ValidationResult;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
@@ -125,12 +126,16 @@ public class StockManagementController {
     }
 
     private void nextPage() {
-        currentPage++;
+        if (currentPage < totalPage) {
+            currentPage++;
+        }
         menu();
     }
 
     private void previousPage() {
-        currentPage--;
+        if (currentPage > 1) {
+            currentPage--;
+        }
         menu();
     }
 
