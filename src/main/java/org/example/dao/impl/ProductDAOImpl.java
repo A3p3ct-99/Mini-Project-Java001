@@ -58,59 +58,118 @@ public class ProductDAOImpl implements ProductDAO {
             System.out.println("Select the field to update:");
             System.out.println("1. Name 2. Quantity 3. Price 4. All fields 5.Exit");
 
-            int choice = scanner.nextInt();
-            scanner.nextLine(); // Consume the newline character
+            int choice = 0;
+            boolean validChoice = false;
+            while (!validChoice) {
+                try {
+                    choice = scanner.nextInt(); // Read the menu choice
+                    scanner.nextLine(); // Consume the newline character
+                    if (choice >= 1 && choice <= 5) {
+                        validChoice = true; // Valid choice
+                    } else {
+                        System.out.println("Invalid choice. Please enter a number between 1 and 5.");
+                    }
+                } catch (java.util.InputMismatchException e) {
+                    System.out.println("Invalid input. Please enter a number between 1 and 5.");
+                    scanner.nextLine(); // Clear the invalid input from the scanner buffer
+                }
+            }
 
             switch (choice) {
                 case 1:
-                    System.out.println("Enter new name:");
-                    String newName = scanner.nextLine();
-                    productToUpdate.setName(newName);
-                    System.out.println("Name updated successfully.");
-                    displayProductTable(productToUpdate); // Display updated product in table format
+                    boolean retryName = true;
+                    while (retryName) {
+                        System.out.println("Enter new name:");
+                        String newName = scanner.nextLine();
+                        if (isValidName(newName)) {
+                            productToUpdate.setName(newName);
+                            System.out.println("Name updated successfully.");
+                            displayProductTable(productToUpdate); // Display updated product in table format
+                            retryName = false;
+                        } else {
+                            System.out.println("Invalid name. Name must contain only letters, numbers, and spaces.");
+                            retryName = askToRetry(); // Ask if the user wants to retry
+                        }
+                    }
                     break;
                 case 2:
-                    System.out.println("Enter new quantity:");
-                    String newQty = scanner.nextLine();
-                    if (isValidQuantity(newQty)) {
-                        productToUpdate.setQuantity(newQty);
-                        System.out.println("Quantity updated successfully.");
-                        displayProductTable(productToUpdate); // Display updated product in table format
-                    } else {
-                        System.out.println("Invalid quantity. Quantity must be a positive integer.");
+                    boolean retryQty = true;
+                    while (retryQty) {
+                        System.out.println("Enter new quantity:");
+                        String newQty = scanner.nextLine();
+                        if (isValidQuantity(newQty)) {
+                            productToUpdate.setQuantity(newQty);
+                            System.out.println("Quantity updated successfully.");
+                            displayProductTable(productToUpdate); // Display updated product in table format
+                            retryQty = false;
+                        } else {
+                            System.out.println("Invalid quantity. Quantity must be a positive integer.");
+                            retryQty = askToRetry(); // Ask if the user wants to retry
+                        }
                     }
                     break;
                 case 3:
-                    System.out.println("Enter new price:");
-                    String newPrice = scanner.nextLine();
-                    if (isValidPrice(newPrice)) {
-                        productToUpdate.setPrice(newPrice);
-                        System.out.println("Price updated successfully.");
-                        displayProductTable(productToUpdate); // Display updated product in table format
-                    } else {
-                        System.out.println("Invalid price. Price must be a positive number (e.g., 1.99 or 2).");
+                    boolean retryPrice = true;
+                    while (retryPrice) {
+                        System.out.println("Enter new price:");
+                        String newPrice = scanner.nextLine();
+                        if (isValidPrice(newPrice)) {
+                            productToUpdate.setPrice(newPrice);
+                            System.out.println("Price updated successfully.");
+                            displayProductTable(productToUpdate); // Display updated product in table format
+                            retryPrice = false;
+                        } else {
+                            System.out.println("Invalid price. Price must be a positive number (e.g., 1.99 or 2).");
+                            retryPrice = askToRetry(); // Ask if the user wants to retry
+                        }
                     }
                     break;
                 case 4:
                     System.out.println("Enter new name:");
-                    String newNameAll = scanner.nextLine();
-                    System.out.println("Enter new quantity:");
-                    String newQtyAll = scanner.nextLine();
-                    System.out.println("Enter new price:");
-                    String newPriceAll = scanner.nextLine();
+                    boolean retryNameAll = true;
+                    while (retryNameAll) {
+                        String newNameAll = scanner.nextLine();
+                        if (isValidName(newNameAll)) {
+                            productToUpdate.setName(newNameAll);
+                            retryNameAll = false;
+                        } else {
+                            System.out.println("Invalid name. Name must contain only letters, numbers, and spaces.");
+                            retryNameAll = askToRetry(); // Ask if the user wants to retry
+                        }
+                    }
+
+                    boolean retryQtyAll = true;
+                    while (retryQtyAll) {
+                        System.out.println("Enter new quantity:");
+                        String newQtyAll = scanner.nextLine();
+                        if (isValidQuantity(newQtyAll)) {
+                            productToUpdate.setQuantity(newQtyAll);
+                            retryQtyAll = false;
+                        } else {
+                            System.out.println("Invalid quantity. Quantity must be a positive integer.");
+                            retryQtyAll = askToRetry(); // Ask if the user wants to retry
+                        }
+                    }
+
+                    boolean retryPriceAll = true;
+                    while (retryPriceAll) {
+                        System.out.println("Enter new price:");
+                        String newPriceAll = scanner.nextLine();
+                        if (isValidPrice(newPriceAll)) {
+                            productToUpdate.setPrice(newPriceAll);
+                            retryPriceAll = false;
+                        } else {
+                            System.out.println("Invalid price. Price must be a positive number (e.g., 1.99 or 2).");
+                            retryPriceAll = askToRetry(); // Ask if the user wants to retry
+                        }
+                    }
+
                     System.out.println("Enter new date:");
                     String newDateAll = scanner.nextLine();
 
-                    if (isValidQuantity(newQtyAll) && isValidPrice(newPriceAll)) {
-                        productToUpdate.setName(newNameAll);
-                        productToUpdate.setQuantity(newQtyAll);
-                        productToUpdate.setPrice(newPriceAll);
-                        productToUpdate.setDate(newDateAll);
-                        System.out.println("All fields updated successfully.");
-                        displayProductTable(productToUpdate); // Display updated product in table format
-                    } else {
-                        System.out.println("Invalid quantity or price. Quantity must be a positive integer, and price must be a positive number.");
-                    }
+                    productToUpdate.setDate(newDateAll);
+                    System.out.println("All fields updated successfully.");
+                    displayProductTable(productToUpdate); // Display updated product in table format
                     break;
                 case 5:
                     System.out.println("Exiting update menu.");
@@ -119,6 +178,11 @@ public class ProductDAOImpl implements ProductDAO {
                     System.out.println("Invalid choice. Please try again.");
             }
         }
+    }
+
+    // Helper method to validate name (must contain only letters, numbers, and spaces)
+    private boolean isValidName(String name) {
+        return name.matches("^[a-zA-Z0-9 ]+$"); // Allows letters, numbers, and spaces
     }
 
     // Helper method to validate quantity (must be a positive integer)
@@ -138,6 +202,21 @@ public class ProductDAOImpl implements ProductDAO {
             return pr > 0; // Price must be greater than 0
         } catch (NumberFormatException e) {
             return false; // Not a valid float or integer
+        }
+    }
+
+    // Helper method to ask the user if they want to retry
+    private boolean askToRetry() {
+        while (true) {
+            System.out.println("Do you want to try again? (Y/N):");
+            String input = scanner.nextLine().trim().toUpperCase();
+            if (input.equals("Y")) {
+                return true; // Retry
+            } else if (input.equals("N")) {
+                return false; // Stop
+            } else {
+                System.out.println("Invalid input. Please enter only Y or N.");
+            }
         }
     }
 
