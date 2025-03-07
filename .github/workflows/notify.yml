@@ -1,0 +1,46 @@
+name: Notify Telegram on Git Activity
+
+on:
+  push:
+    branches: ["*"]
+  pull_request:
+    types: [opened, closed, merged]
+  create:
+  delete:
+  workflow_dispatch:
+
+jobs:
+  notify_telegram:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Send Telegram Notification
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_REPO: ${{ github.repository }}
+          GITHUB_BRANCH: ${{ github.ref_name || github.ref }}
+          GITHUB_COMMIT_MESSAGE: ${{ github.event.head_commit.message || github.event.commits[0].message || 'No commit message' }}
+          GITHUB_COMMIT_URL: ${{ github.event.head_commit.url || github.server_url }}/commit/${{ github.sha }}
+
+        run: |
+          CURRENT_DATETIME=$(date '+%Y-%m-%d %H:%M:%S')
+
+          MESSAGE="🚀 *GitHub Activity Notification* 🚀
+          *Repository:* ${GITHUB_REPO}
+          *Event:* ${GITHUB_EVENT_NAME}
+          *User:* ${GITHUB_ACTOR}
+          *Branch:* ${GITHUB_BRANCH}
+          *Commit:* ${GITHUB_COMMIT_MESSAGE}
+          *Date/Time:* ${CURRENT_DATETIME}
+          [View Commit](${GITHUB_COMMIT_URL})"
+
+          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            -d chat_id="${TELEGRAM_CHAT_ID}" \
+            -d text="${MESSAGE}" \
+            -d parse_mode="Markdown"
