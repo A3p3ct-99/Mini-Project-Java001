@@ -6,6 +6,7 @@ import org.nocrala.tools.texttablefmt.CellStyle;
 import org.nocrala.tools.texttablefmt.ShownBorders;
 import org.nocrala.tools.texttablefmt.Table;
 
+import java.io.File;
 import java.util.List;
 
 import static org.example.constant.Color.*;
@@ -47,6 +48,25 @@ public class TableConfig {
         table.addCell(RED + ITALIC + "$" + product.getPrice(), style);
         table.addCell(BLUE + product.getQuantity(), style);
         table.addCell(PINK + product.getDate(), style);
+        System.out.println(table.render());
+    }
+
+    public static void displayBackUpDataTable(File[] files) {
+        Table table = new Table(2, BorderStyle.UNICODE_ROUND_BOX_WIDE, ShownBorders.ALL);
+        CellStyle style = new CellStyle(CellStyle.HorizontalAlign.CENTER);
+        table.addCell(LIGHT_CYAN + "List of Backup Data", style, 2);
+        table.setColumnWidth(0, 6, 6);
+        table.setColumnWidth(1, 40, 40);
+        int i = 0;
+        if (files.length == 0) {
+            table.addCell("-", style);
+            table.addCell("----", style);
+        } else {
+            for (File file : files) {
+                table.addCell(LIGHT_GREEN + (++i), style);
+                table.addCell(LIGHT_PURPLE + file.getName(), style);
+            }
+        }
         System.out.println(table.render());
     }
 

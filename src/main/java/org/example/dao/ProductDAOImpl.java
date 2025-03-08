@@ -119,4 +119,21 @@ public class ProductDAOImpl implements ProductDAO {
         return products;
     }
 
+    public void executeCreateQuery(String query) {
+        try (Statement statement = databaseConnectionManager.getConnection().createStatement()) {
+            statement.execute(query);
+        } catch (SQLException e) {
+            printError("Connection error occurred" + e.getMessage());
+        }
+    }
+
+    @Override
+    public void clearDatabase() {
+        try (Statement statement = databaseConnectionManager.getConnection().createStatement()) {
+            statement.executeUpdate(QUERY_CLEAR_TABLE);
+        } catch (SQLException e) {
+            printError("Connection error occurred" + e.getMessage());
+        }
+    }
+
 }

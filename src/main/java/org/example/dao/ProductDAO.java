@@ -12,4 +12,6 @@ public interface ProductDAO {
     void updateProduct(ProductEntity product);
     void deleteProduct(int id);
     List<ProductEntity> getAllProducts();
+    void clearDatabase();
+    void executeCreateQuery(String query);
 }

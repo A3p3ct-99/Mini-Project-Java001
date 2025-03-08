@@ -13,7 +13,7 @@ public interface ProductService {
     void setRowTable(String numRows);
     void saveProduct(String savedInput);
     void unsavedProduct(List<Product> insertedProduct, List<Product> updatedProduct, String unsavedInput);
-    void backUpDatabase();
-    void restoreDatabase();
+    void backUpDatabase(String yN);
+    void restoreDatabase(String id);
     List<Product> getAllProducts();
 }

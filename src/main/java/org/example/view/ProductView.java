@@ -11,6 +11,7 @@ import org.example.service.ProductService;
 import org.example.validation.ValidationResult;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -404,11 +405,48 @@ public class ProductView {
     }
 
     private void backUpDatabase() {
-        productService.backUpDatabase();
+        String backupOption = getValidatedInput(
+                scanner::nextLine,
+                value -> {
+                    if (value.isEmpty()) {
+                        return new ValidationResult(false, "Input can not be empty!");
+                    } else if (!value.matches("^(y|n)$")) {
+                        return new ValidationResult(false, "Invalid input! Allowed only 'y' or 'n'!");
+                    }
+                    return new ValidationResult(true, "");
+                },
+                "Do you want to backup the database? (y/n): "
+        );
+        if (backupOption.equals("n")) {
+            System.out.println("Backup cancelled.");
+            menu();
+        }
+        productService.backUpDatabase(backupOption);
+        menu();
     }
 
     private void restoreDatabase() {
-        productService.restoreDatabase();
+        String backupDir = "backup";
+        File directory = new File(backupDir);
+        File[] files = directory.listFiles();
+        if (files == null || files.length == 0) {
+            System.out.println(RED + "❌ No backup files found." + RESET);
+            return;
+        }
+        displayBackUpDataTable(files);
+        String id = getValidatedInput(
+                scanner::nextLine,
+                value -> {
+                    if (value.isEmpty()) {
+                        return new ValidationResult(false, "Product ID cannot be empty.");
+                    }
+                    return new ValidationResult(true, "");
+                },
+                "Enter product ID to restore: "
+        );
+
+        productService.restoreDatabase(id);
+        menu();
     }
 
     private void exit() {

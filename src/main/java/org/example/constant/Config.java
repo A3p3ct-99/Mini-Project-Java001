@@ -8,15 +8,14 @@ public class Config {
     public static final String DB_URL = "jdbc:postgresql://localhost:5432/" + System.getenv("DB_NAME");
     public static final String INSERT_PRODUCT_FILE_NAME = "insert_products.csv";
     public static final String UPDATE_PRODUCT_FILE_NAME = "update_products.csv";
-    public static final String BACKUP_FILE_NAME = "backup.sql";
 
     // SQL Queries
     public static final String QUERY_SELECT_ALL = "SELECT * FROM products ORDER BY id";
     public static final String QUERY_UPDATE = "UPDATE products SET product_name = ?, unit_price = ?, quantity = ?, created_at = ? WHERE id = ?";
     public static final String QUERY_INSERT = "INSERT INTO products (id, product_name, unit_price, quantity, created_at) VALUES (?, ?, ?, ?, ?)";
-
     public static final String QUERY_DELETE = "DELETE FROM products WHERE id = ?";
     public static final String QUERY_SEARCH_CONTAIN_NAME = "SELECT * FROM products WHERE product_name ILIKE ?";
+    public static final String QUERY_CLEAR_TABLE = "DELETE FROM products";
 
 
     public static final String DATE_FORMAT = "yyyy-MM-dd";

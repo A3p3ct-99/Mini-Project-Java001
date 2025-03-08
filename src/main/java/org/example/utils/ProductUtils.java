@@ -5,12 +5,17 @@ import org.example.dto.Product;
 import org.example.model.ProductEntity;
 
 import java.io.*;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.sql.DriverManager.getConnection;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.example.constant.Config.DATE_FORMAT;
+import static org.example.constant.Config.DB_URL;
 
 public class ProductUtils {
 
@@ -99,6 +104,39 @@ public class ProductUtils {
             writer.write("");
         } catch (IOException e) {
             System.out.println();
+        }
+    }
+
+    public static void backupDatabase(String fileName, List<Product> products) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            for (Product product : products) {
+                String sql = String.format(
+                        "INSERT INTO products (id, product_name, unit_price, quantity, created_at) VALUES ('%s', '%s', '%s', '%s', '%s');",
+                        product.getId(), product.getName(), product.getPrice(), product.getQuantity(), product.getDate()
+                );
+                writer.write(sql);
+                writer.newLine();
+            }
+            System.out.println("Database backup completed successfully.");
+        } catch (IOException e) {
+            System.out.println("An error occurred during backup: " + e.getMessage());
+        }
+    }
+
+    public static void restoreDatabaseById(String fileName) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("backup/" + fileName))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                try (Connection connection = getConnection(DB_URL);
+                     Statement statement = connection.createStatement()) {
+                     statement.execute(line);
+                } catch (SQLException e) {
+                    System.out.println("An error occurred while executing SQL: " + e.getMessage());
+                }
+            }
+            System.out.println("Database restore completed successfully.");
+        } catch (IOException e) {
+            System.out.println("An error occurred during restore: " + e.getMessage());
         }
     }
 }
