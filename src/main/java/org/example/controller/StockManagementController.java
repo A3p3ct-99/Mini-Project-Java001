@@ -36,6 +36,7 @@ public class StockManagementController {
     public StockManagementController(ProductDAO stockService) {
         this.productView = new ProductModelImplement();
         this.stockService = stockService;
+
         commands.put("n", this::nextPage);
         commands.put("p", this::previousPage);
         commands.put("f", this::firstPage);
@@ -97,7 +98,13 @@ public class StockManagementController {
     }
 
     private void backUpDatabase() {
-        stockService.backUpDatabase();
+        try {
+            stockService.backUpDatabase();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void restoreDatabase() {

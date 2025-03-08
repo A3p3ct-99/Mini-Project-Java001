@@ -11,12 +11,11 @@ import org.nocrala.tools.texttablefmt.ShownBorders;
 import org.nocrala.tools.texttablefmt.Table;
 
 import java.awt.*;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
+import java.io.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.List;
-import java.util.Scanner;
 
 import static org.example.constant.Color.*;
 import static org.example.constant.Color.LIGHT_GREEN;
@@ -142,11 +141,187 @@ public class ProductDAOImpl implements ProductDAO {
     //Bonus point
     @Override
     public void backUpDatabase() {
+        // Parse the environment string
+        String environmentStr = "DB_NAME=postgres;DB_PASSWORD=Bunath123;DB_USERNAME=postgres";
+        Map<String, String> envVars = new HashMap<>();
+        for (String env : environmentStr.split(";")) {
+            String[] parts = env.split("=");
+            if (parts.length == 2) {
+                envVars.put(parts[0], parts[1]);
+            }
+        }
+        String dbName = envVars.get("DB_NAME");
+        String dbPassword = envVars.get("DB_PASSWORD");
+        String dbUsername = envVars.get("DB_USERNAME");
 
+        String option = getValidatedInput(
+                scanner::nextLine,
+                value -> {
+                    if (!value.matches("[yYnN]")) {
+                        return new ValidationResult(false, "Invalid input, please enter y or n");
+                    } else {
+                        return new ValidationResult(true, "");
+                    }
+                },
+                "Are you sure you want to backup the database '" + dbName + "' (y/n)?: "
+        );
+
+        if (option.equalsIgnoreCase("y")) {
+            System.out.println("Starting database backup...");
+            try {
+                // Generate a timestamp for unique filename
+                LocalDateTime now = LocalDateTime.now();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HHmmss");
+                String dateStr = now.format(formatter);
+                // Create backup filename with timestamp
+                String backupFilePath = "D:\\filebackup\\database_backup_" + dateStr + ".sql";
+
+                ProcessBuilder pb = new ProcessBuilder(
+                        "C:\\Program Files\\PostgreSQL\\15\\bin\\pg_dump.exe",
+                        "--host", "localhost",
+                        "--port", "5432",
+                        "--username", dbUsername,
+                        "--format", "custom",
+                        "--file", backupFilePath,
+                        dbName);
+
+                // Set the password environment variable
+                Map<String, String> env = pb.environment();
+                env.put("PGPASSWORD", dbPassword);
+
+                // Redirect error stream to be captured
+                pb.redirectErrorStream(true);
+
+                Process p = pb.start();
+
+                // Capture the output to help diagnose the issue
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(p.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        System.out.println(line);
+                    }
+                }
+
+                int exitCode = p.waitFor();
+                if (exitCode == 0) {
+                    System.out.println(GREEN + "Database backup completed successfully " + backupFilePath+RESET);
+                } else {
+                    System.out.println("Database backup failed with exit code: " + exitCode);
+                }
+
+                // Clear the password from environment for security
+                env.remove("PGPASSWORD");
+
+            } catch (IOException | InterruptedException e) {
+                System.out.println("Error during backup: " + e.getMessage());
+                throw new RuntimeException(e);
+            }
+        } else {
+            System.out.println("Database backup cancelled.");
+        }
+        ProductDAO service = new ProductDAOImpl();
+        StockManagementController stockManagementController = new StockManagementController(service);
+        stockManagementController.start();
     }
 
     @Override
     public void restoreDatabase() {
+        // Parse the environment string (similar to the backup logic)
+        String environmentStr = "DB_NAME=postgres;DB_PASSWORD=Bunath123;DB_USERNAME=postgres";
+        Map<String, String> envVars = new HashMap<>();
+        for (String env : environmentStr.split(";")) {
+            String[] parts = env.split("=");
+            if (parts.length == 2) {
+                envVars.put(parts[0], parts[1]);
+            }
+        }
+        String dbName = envVars.get("DB_NAME");
+        String dbPassword = envVars.get("DB_PASSWORD");
+        String dbUsername = envVars.get("DB_USERNAME");
 
+        // Get the backup file path from user input (you can add validation here)
+        String backupFilePath = getValidatedInput(
+                scanner::nextLine,
+                value -> {
+                    if (value.isEmpty() || !new File(value).exists()) {
+                        return new ValidationResult(false, "Invalid file path or file does not exist.");
+                    } else {
+                        return new ValidationResult(true, "");
+                    }
+                },
+                "Enter the path of the backup file to restore: "
+        );
+
+        String option = getValidatedInput(
+                scanner::nextLine,
+                value -> {
+                    if (!value.matches("[yYnN]")) {
+                        return new ValidationResult(false, "Invalid input, please enter y or n");
+                    } else {
+                        return new ValidationResult(true, "");
+                    }
+                },
+                "Are you sure you want to restore the database '" + dbName + "' from the file '" + backupFilePath + "' (y/n)?: "
+        );
+
+        if (option.equalsIgnoreCase("y")) {
+            System.out.println("Starting database restore...");
+
+            try {
+                // Setup the process to restore the database using pg_restore
+                ProcessBuilder pb = new ProcessBuilder(
+                        "C:\\Program Files\\PostgreSQL\\15\\bin\\pg_restore.exe",
+                        "--host", "localhost",
+                        "--port", "5432",
+                        "--username", dbUsername,
+                        "--dbname", dbName,
+                        "--clean", // Drop objects before restoring
+                        "--if-exists", // Avoid errors if objects don't exist
+                        "--no-password", // Avoid password prompt
+                        backupFilePath);
+
+                // Set the password environment variable
+                Map<String, String> env = pb.environment();
+                env.put("PGPASSWORD", dbPassword);
+
+                // Redirect error stream to be captured
+                pb.redirectErrorStream(true);
+
+                Process p = pb.start();
+
+                // Capture the output to help diagnose the issue
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(p.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        System.out.println(line);
+                    }
+                }
+
+                int exitCode = p.waitFor();
+                if (exitCode == 0) {
+                    System.out.println(GREEN + "Database restore completed successfully." + RESET);
+                } else {
+                    System.out.println("Database restore failed with exit code: " + exitCode);
+                }
+
+                // Clear the password from environment for security
+                env.remove("PGPASSWORD");
+
+            } catch (IOException | InterruptedException e) {
+                System.out.println("Error during restore: " + e.getMessage());
+                throw new RuntimeException(e);
+            }
+        } else {
+            System.out.println("Database restore cancelled.");
+        }
+
+        ProductDAO service = new ProductDAOImpl();
+        StockManagementController stockManagementController = new StockManagementController(service);
+        stockManagementController.start();
     }
+
+
+
 }

@@ -1,5 +1,7 @@
 package org.example.dao;
 
+import java.io.IOException;
+
 public interface ProductDAO {
     void writeProduct();
     void readProduct();
@@ -9,6 +11,6 @@ public interface ProductDAO {
     void setRowTable();
     void saveProduct();
     void unsavedProduct();
-    void backUpDatabase();
+    void backUpDatabase() throws IOException, InterruptedException;
     void restoreDatabase();
 }
