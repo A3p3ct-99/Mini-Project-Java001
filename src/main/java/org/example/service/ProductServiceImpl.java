@@ -5,9 +5,7 @@ package org.example.service;
 import org.example.dao.ProductDAO;
 import org.example.dao.ProductDAOImpl;
 import org.example.dto.Product;
-import org.example.model.ProductEntity;
 import org.example.utils.ProductUtils;
-import org.example.validation.ValidationResult;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -17,10 +15,9 @@ import java.util.List;
 
 import static org.example.constant.Color.*;
 import static org.example.constant.Color.RESET;
-import static org.example.constant.Config.REGEX_DELETE_ID;
 import static org.example.constant.Config.printError;
 import static org.example.constant.TableConfig.displayProductByIdAndName;
-import static org.example.constant.Validation.getValidatedInput;
+import static org.example.constant.TableConfig.displayProductTable;
 import static org.example.utils.ProductUtils.writeProductToFile;
 
 
@@ -61,16 +58,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void searchProduct() {
-
-    }
-
-    @Override
     public void searchProduct(String name) {
         var productsEntity = productDAO.getProductsContainNameIgnoreCase(name);
-        if(productsEntity.isEmpty())
-        {
-            System.out.println(RED+"❌ Product is  not found"+ RESET);
+        if (productsEntity.isEmpty()) {
+            System.out.println(RED + "❌ Product is  not found" + RESET);
         } else {
             var products = productsEntity.filter(productEntities -> !productEntities.isEmpty())
                     .map(productEntities -> productEntities.stream().map(ProductUtils::getProductFromDatabase).toList())
