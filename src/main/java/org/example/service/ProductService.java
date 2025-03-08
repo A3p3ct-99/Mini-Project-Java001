@@ -5,7 +5,7 @@ import org.example.dto.Product;
 import java.util.List;
 
 public interface ProductService {
-    void writeProduct();
+    void writeProduct(Product product);
     void readProduct();
     void updateProduct();
     void deleteProduct();

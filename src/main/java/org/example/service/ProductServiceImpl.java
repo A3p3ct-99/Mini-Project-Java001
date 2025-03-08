@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.example.utils.ProductUtils.writeProductToFile;
+
 
 public class ProductServiceImpl implements ProductService {
 
@@ -21,8 +23,8 @@ public class ProductServiceImpl implements ProductService {
     ProductDAO productDAO = new ProductDAOImpl();
 
     @Override
-    public void writeProduct() {
-
+    public void writeProduct(Product product) {
+        writeProductToFile(product);
     }
 
     @Override

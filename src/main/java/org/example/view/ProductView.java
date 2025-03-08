@@ -3,13 +3,13 @@ package org.example.view;
 
 import org.example.dto.Product;
 import org.example.functional.Command;
-import org.example.dao.ProductDAOImpl;
 import org.example.service.ProductService;
 import org.example.validation.ValidationResult;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
@@ -24,14 +24,16 @@ import static org.example.constant.Validation.validateMenuOption;
 
 public class ProductView {
 
-    int totalPage = 1;
-    int currentPage = 1;
+    private int totalPage = 1;
+    private int currentPage = 1;
+    private static int lastId = 0;
     Scanner scanner = new Scanner(System.in);
     private final ProductService productService;
     private final HashMap<String, Command> commands = new HashMap<>();
 
     public ProductView(ProductService productService) {
         this.productService = productService;
+        lastId = getLastId();
 
         commands.put("n", this::nextPage);
         commands.put("p", this::previousPage);
@@ -59,8 +61,70 @@ public class ProductView {
         handlePagination(products);
     }
 
-    public void insertProduct() {
-        productService.writeProduct();
+    private void insertProduct() {
+        String id = String.valueOf(++lastId);
+        System.out.println("ID: " + id);
+
+        String name = getValidatedInput(
+                () -> scanner.nextLine().trim(),
+                value -> {
+                    if (value.isEmpty()) {
+                        return new ValidationResult(false, "Product name cannot be empty.");
+                    }
+                    else if (!value.matches("^[a-zA-Z0-9 ]+$")) {
+                        return new ValidationResult(false, "Invalid input. Allow only letters and numbers!");
+                    }
+                    return new ValidationResult(true, "");
+                },
+                ENTER_PRODUCT_NAME
+        );
+
+        String price = getValidatedInput(
+                () -> scanner.nextLine().trim(),
+                value -> {
+                    if (value.isEmpty()) {
+                        return new ValidationResult(false, "Price not allowed to be empty.");
+                    }
+                    else if (!value.matches("^\\d+(\\.\\d{1,2})?$")) {
+                        return new ValidationResult(false, "Invalid input. Allow only positive numbers!");
+                    }
+                    return new ValidationResult(true, "");
+                },
+                ENTER_PRODUCT_PRICE
+        );
+
+        String quantity = getValidatedInput(
+                () -> scanner.nextLine().trim(),
+                value -> {
+                    if (value.isEmpty()) {
+                        return new ValidationResult(false, "Quantity not allowed to be empty.");
+                    }
+                    else if (!value.matches(REGEX_PRODUCT_QUANTITY)) {
+                        return new ValidationResult(false, "Invalid input. Allow only numbers up to 8 digits.");
+                    }
+                    return new ValidationResult(true, "");
+                },
+                ENTER_PRODUCT_QUANTITY
+        );
+
+        String date = LocalDate.now().toString();
+
+        Product newProduct = new Product(id, name, price, quantity, date);
+
+        productService.writeProduct(newProduct);
+
+        System.out.println(ENTER_CONTINUE);
+        scanner.nextLine();
+        menu();
+    }
+
+    private int getLastId() {
+        List<Product> products = productService.getAllProducts();
+        return products.stream()
+                .map(Product::getId)
+                .mapToInt(Integer::parseInt)
+                .max()
+                .orElse(0) + 1;
     }
 
     public void updateProduct() {
