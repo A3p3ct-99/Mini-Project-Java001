@@ -1,11 +1,10 @@
 package org.example.view;
 
 
+import org.example.constant.Color;
 import org.example.dto.Product;
 import org.example.functional.Command;
-import org.example.model.ProductEntity;
 import org.example.service.ProductService;
-import org.example.utils.ProductUtils;
 import org.example.validation.ValidationResult;
 
 import java.io.BufferedReader;
@@ -23,6 +22,7 @@ import static org.example.constant.Error.*;
 import static org.example.constant.TableConfig.*;
 import static org.example.constant.Validation.getValidatedInput;
 import static org.example.constant.Validation.validateMenuOption;
+import static org.example.utils.ProductUtils.readProductsFromFile;
 
 public class ProductView {
 
@@ -122,6 +122,10 @@ public class ProductView {
 
     private int getLastId() {
         List<Product> products = productService.getAllProducts();
+        List<Product> productsFromFile = readProductsFromFile(INSERT_PRODUCT_FILE_NAME);
+        if (!productsFromFile.isEmpty()) {
+            return Integer.parseInt(productsFromFile.getLast().getId());
+        }
         return products.stream()
                 .map(Product::getId)
                 .mapToInt(Integer::parseInt)
@@ -238,7 +242,31 @@ public class ProductView {
     }
 
     private void unsavedProduct() {
-        productService.unsavedProduct();
+        List<Product> insertProducts = readProductsFromFile(INSERT_PRODUCT_FILE_NAME);
+        List<Product> updateProducts = readProductsFromFile(UPDATE_PRODUCT_FILE_NAME);
+        String unsavedInput = getValidatedInput(
+                () -> {
+                    System.out.print("\nEnter your option: ");
+                    return scanner.nextLine();
+                },
+                value -> {
+                    if (value.isEmpty()) {
+                        return new ValidationResult(false, "Input can not be empty!");
+                    } else if (!value.matches("^[a-zA-Z]+$")) {
+                        return new ValidationResult(false, "Invalid input! Allowed only characters!<");
+                    } else if (!value.matches("^(ui|uu|b)$")) {
+                        return new ValidationResult(false, "Invalid input! Allowed only 'ui', 'uu' or 'b'!");
+                    }
+                    return new ValidationResult(true, "");
+                }, Color.GREEN+"'ui' "+Color.RESET + "for saving products and"+Color.GREEN+" 'uu' "+ Color.RESET+"for saving update products or"+Color.RED+" 'b' "+Color.RESET+"for back to menu"
+        );
+        productService.unsavedProduct(insertProducts, updateProducts, unsavedInput);
+        getValidatedInput(
+                scanner::nextLine,
+                value -> new ValidationResult(true, ""),
+                "Enter to continue..."
+        );
+        menu();
     }
 
     private void backUpDatabase() {

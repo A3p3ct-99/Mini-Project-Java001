@@ -6,6 +6,8 @@ import org.example.model.ProductEntity;
 
 import java.io.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.example.constant.Config.DATE_FORMAT;
@@ -33,13 +35,28 @@ public class ProductUtils {
         );
     }
 
-    public static void writeProductToFile(Product product) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("products.txt", true))) {
-            writer.write(product.getId() + "," + product.getName() + "," + product.getPrice() + "," + product.getQuantity() + "," + product.getDate());
+    public static List<Product> readProductsFromFile(String fileName) {
+        List<Product> products = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(",");
+                Product product = new Product(data[0], data[1], data[2], data[3], data[4]);
+                products.add(product);
+            }
+        } catch (IOException e) {
+            System.out.println();
+        }
+        return products;
+    }
+
+    public static void writeProductToFile(Product product, String fileName) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, true))) {
+            writer.write(String.join(",", product.getId(), product.getName(), product.getPrice(), product.getQuantity(), product.getDate()));
             writer.newLine();
             System.out.println("Product successfully saved!");
         } catch (IOException e) {
-            System.out.println("Error saving product: " + e.getMessage());
+            System.out.println();
         }
     }
 }

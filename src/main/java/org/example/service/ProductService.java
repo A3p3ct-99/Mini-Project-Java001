@@ -12,7 +12,7 @@ public interface ProductService {
     void searchProduct(String name);
     void setRowTable(String numRows);
     void saveProduct();
-    void unsavedProduct();
+    void unsavedProduct(List<Product> insertedProduct, List<Product> updatedProduct, String unsavedInput);
     void backUpDatabase();
     void restoreDatabase();
     List<Product> getAllProducts();

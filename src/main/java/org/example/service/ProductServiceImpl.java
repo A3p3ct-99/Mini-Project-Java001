@@ -2,6 +2,7 @@ package org.example.service;
 
 
 
+import org.example.constant.Color;
 import org.example.dao.ProductDAO;
 import org.example.dao.ProductDAOImpl;
 import org.example.dto.Product;
@@ -15,6 +16,7 @@ import java.util.List;
 
 import static org.example.constant.Color.*;
 import static org.example.constant.Color.RESET;
+import static org.example.constant.Config.INSERT_PRODUCT_FILE_NAME;
 import static org.example.constant.Config.printError;
 import static org.example.constant.TableConfig.displayProductByIdAndName;
 import static org.example.constant.TableConfig.displayProductTable;
@@ -25,11 +27,13 @@ public class ProductServiceImpl implements ProductService {
 
 
     List<Product> products = new ArrayList<>();
+    List<Product> insertedProduct = new ArrayList<>();
+    List<Product> updatedProduct = new ArrayList<>();
     ProductDAO productDAO = new ProductDAOImpl();
 
     @Override
     public void writeProduct(Product product) {
-        writeProductToFile(product);
+        writeProductToFile(product, INSERT_PRODUCT_FILE_NAME);
     }
 
     @Override
@@ -76,8 +80,21 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void unsavedProduct() {
-
+    public void unsavedProduct(List<Product> insertedProduct, List<Product> updatedProduct ,String unsavedInput) {
+        while (true) {
+            switch (unsavedInput.toLowerCase()) {
+                case "ui" -> displayProductTable(insertedProduct, 0, insertedProduct.size(), 1, 1);
+                case "uu" -> displayProductTable(updatedProduct, 0, updatedProduct.size(), 1, 1);
+                case "b" -> {
+                    return;
+                }
+                default -> {
+                    System.out.println(Color.RED + "❌ Invalid option! Please enter a valid option ('ui', 'uu', 'b')! Try again." + Color.RESET);
+                    continue;
+                }
+            }
+            break;
+        }
     }
 
     @Override

@@ -41,8 +41,7 @@ public class ProductDAOImpl implements ProductDAO {
     }
 
     public Optional<List<ProductEntity>> getProductsContainNameIgnoreCase(String name) {
-        String query = "SELECT * FROM products WHERE product_name ILIKE ?";
-        try (PreparedStatement statement = databaseConnectionManager.getConnection().prepareStatement(query)) {
+        try (PreparedStatement statement = databaseConnectionManager.getConnection().prepareStatement(QUERY_SEARCH_CONTAIN_NAME)) {
             statement.setString(1, "%" + name + "%");
             try (ResultSet resultSet = statement.executeQuery()) {
                 List<ProductEntity> products = new ArrayList<>();
