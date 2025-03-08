@@ -6,6 +6,8 @@ public class Error {
     public static String ERROR_INVALID_OPTION = "Option not found!";
 
     // save method
-    public static final String ERROR_PRODUCT_SAVE_ADD_NOT_FOUND = "No products available for save add.";
+    public static final String ERROR_PRODUCT_SAVE_ADD_NOT_FOUND = "No products available for save insert.";
     public static final String ERROR_PRODUCT_SAVE_UPDATE_NOT_FOUND = "No products available for save update.";
+
+    public static final String ERROR_PRODUCT_SAVE_INSERT_UPDATE_NOT_FOUND = "No products available for save insert update.";
 }

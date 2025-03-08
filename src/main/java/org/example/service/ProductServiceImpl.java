@@ -48,8 +48,8 @@ public class ProductServiceImpl implements ProductService {
 
     public ProductServiceImpl() {
         // Adding 2 mock products to the list
-        products2.add(new Product("11", "Keycap update", "25.00", "100", "2023-10-01"));
-        products2.add(new Product("12", "Switch Keyboard update", "12.99", "24", "2023-09-15"));
+        products2.add(new Product("1", "Laptop update", "25.00", "100", "2023-10-01"));
+        products2.add(new Product("2", "Smartphone update", "12.99", "24", "2023-09-15"));
 //        products.add(new Product("13", "Keyboard Lube", "500.00", "30", "2023-08-20"));
     }
 
@@ -80,18 +80,18 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void saveProduct() {
-        if (products.isEmpty()) {
-            System.out.println(Color.RED + Error.ERROR_PRODUCT_SAVE_ADD_NOT_FOUND + Color.RESET + "\n");
-            return;
-        }
-        if(products2.isEmpty()){
-            System.out.println(Color.RED + Error.ERROR_PRODUCT_SAVE_UPDATE_NOT_FOUND + Color.RESET + "\n");
+        if (products.isEmpty() && products2.isEmpty()) {
+            System.out.println(Color.RED + Error.ERROR_PRODUCT_SAVE_INSERT_UPDATE_NOT_FOUND + Color.RESET + "\n");
             return;
         }
         while(true){
             String saveOption = validateOptionSave();
             switch (saveOption){
                 case "si" -> {
+                    if (products.isEmpty()){
+                        System.out.println(Color.RED + Error.ERROR_PRODUCT_SAVE_ADD_NOT_FOUND + Color.RESET + "\n");
+                        return;
+                    }
                     List<ProductEntity> productsEntitiesInsert = new ArrayList<>();
                     for (Product product : products) {
                         ProductEntity productEntity = createProductEntity(
@@ -113,8 +113,11 @@ public class ProductServiceImpl implements ProductService {
                     return;
                 }
                 case "su" -> {
+                    if(products2.isEmpty()){
+                        System.out.println(Color.RED + Error.ERROR_PRODUCT_SAVE_UPDATE_NOT_FOUND + Color.RESET + "\n");
+                        return;
+                    }
                     List<ProductEntity> productsEntitiesUpdate= new ArrayList<>();
-                    // i assume that
                     for (Product product : products2) {
                         ProductEntity productEntity = createProductEntity(
                                 String.valueOf(product.getId()),  // assuming getId() returns an integer
