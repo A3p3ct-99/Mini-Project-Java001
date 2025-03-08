@@ -70,18 +70,23 @@ public class StockManagementController {
 
     private void updateProduct() {
         stockService.updateProduct();
+//        stockService.unsavedProduct();
+        menu();
     }
 
     private void displayProduct() {
         stockService.readProduct();
+        menu();
     }
 
     private void deleteProduct() {
         stockService.deleteProduct();
+        menu();
     }
 
     private void searchProduct() {
         stockService.searchProduct();
+        menu();
     }
 
     private void setRowTable() {
@@ -91,10 +96,12 @@ public class StockManagementController {
 
     private void saveProduct() {
         stockService.saveProduct();
+        menu();
     }
 
     private void unsavedProduct() {
         stockService.unsavedProduct();
+        menu();
     }
 
     private void backUpDatabase() {
@@ -146,14 +153,14 @@ public class StockManagementController {
 
     private void gotoPage() {
         String input = getValidatedInput(
-            scanner::nextLine,
-            value -> {
-                if (!value.matches("\\d+")) {
-                    return new ValidationResult(false, "Invalid input, please enter a number");
-                }
-                return new ValidationResult(true, "");
-            },
-            ENTER_PAGE_NUMBER
+                scanner::nextLine,
+                value -> {
+                    if (!value.matches("\\d+")) {
+                        return new ValidationResult(false, "Invalid input, please enter a number");
+                    }
+                    return new ValidationResult(true, "");
+                },
+                ENTER_PAGE_NUMBER
         );
         int page = Integer.parseInt(input);
         if (page < 1 || page > totalPage) {
