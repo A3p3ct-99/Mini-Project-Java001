@@ -69,11 +69,6 @@ public class ProductDAOImpl implements ProductDAO {
 
     @Override
     public void writeProduct() {
-        if (products.isEmpty()) {
-            System.out.println(Error.ERROR_NO_PRODUCTS);
-            return;
-        }
-
         // Auto-increment ID based on the previous product's ID
         int newId = 1; // Default ID if no products exist
         if (!products.isEmpty()) {
@@ -124,11 +119,13 @@ public class ProductDAOImpl implements ProductDAO {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String date = currentDate.format(formatter);
 
-        // Create and add the new product
+        // Create the new product
         Product newProduct = new Product(String.valueOf(newId), name, price, quantity, date);
-        products.add(newProduct);
 
-        System.out.println("Product added successfully!");
+        // Add the new product to the insertedProduct list (temporary storage)
+        insertedProduct.add(newProduct);
+
+        System.out.println("Product added temporarily. Use 'saveProduct' to save changes.");
         TableConfig.displayProductTable(List.of(newProduct), 0, 1, 1, 1); // Display the new product in a table
     }
 
@@ -217,6 +214,7 @@ public class ProductDAOImpl implements ProductDAO {
             }
         }
     }
+
 
     @Override
     public void searchProduct() {
@@ -419,9 +417,8 @@ public class ProductDAOImpl implements ProductDAO {
 
     @Override
     public void saveProduct() {
-        System.out.println(Color.GREEN + " 'si' " + Color.RESET + "for saving inserted products and" + Color.GREEN + " 'uu' " + Color.RESET + "for saving updated products or" + Color.RED + " 'b' " + Color.RESET);
+        System.out.println(Color.GREEN + " 'si' " + Color.RESET + "for saving inserted products and" + Color.GREEN + " 'su' " + Color.RESET + "for saving updated products or" + Color.RED + " 'b' " + Color.RESET);
         System.out.println("Choose an option:");
-
 
         String saveInput = getValidatedInput(
                 scanner::nextLine,

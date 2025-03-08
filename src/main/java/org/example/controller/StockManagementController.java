@@ -66,11 +66,11 @@ public class StockManagementController {
 
     private void insertProduct() {
         stockService.writeProduct();
+        menu();
     }
 
     private void updateProduct() {
         stockService.updateProduct();
-//        stockService.unsavedProduct();
         menu();
     }
 
