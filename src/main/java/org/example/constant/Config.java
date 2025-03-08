@@ -8,9 +8,12 @@ public class Config {
     public static final String DB_URL = "jdbc:postgresql://localhost:5432/" + System.getenv("DB_NAME");
 
     // SQL Queries
-    public static final String QUERY_UPDATE = "UPDATE products SET name = ?, price = ?, quantity = ?, date = ? WHERE id = ?";
+    public static final String QUERY_UPDATE = "UPDATE products SET product_name = ?, unit_price = ?, quantity = ?, created_at = ? WHERE id = ?";
+    //    public static final String QUERY_UPDATE = "UPDATE products SET name = ?, price = ?, quantity = ?, date = ? WHERE id = ?";
     public static final String QUERY_SELECT_ALL = "SELECT * FROM products";
-    public static final String QUERY_INSERT = "INSERT INTO products (name, price, quantity, date) VALUES (?, ?, ?, ?)";
+//    public static final String QUERY_INSERT = "INSERT INTO products (name, price, quantity, date) VALUES (?, ?, ?, ?)";
+    public static final String QUERY_INSERT = "INSERT INTO products (id, product_name, unit_price, quantity, created_at) VALUES (?, ?, ?, ?, ?)";
+
     public static final String QUERY_DELETE = "DELETE FROM products WHERE id = ?";
 
 

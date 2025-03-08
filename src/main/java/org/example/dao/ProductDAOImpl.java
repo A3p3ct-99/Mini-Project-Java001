@@ -75,11 +75,11 @@ public class ProductDAOImpl implements ProductDAO {
 
     public void updateProduct(ProductEntity product) {
         try (PreparedStatement statement = databaseConnectionManager.getConnection().prepareStatement(QUERY_UPDATE)) {
-            statement.setInt(1, product.getId());
-            statement.setString(2, product.getName());
-            statement.setDouble(3, product.getPrice());
-            statement.setInt(4, product.getQuantity());
-            statement.setDate(5, Date.valueOf(product.getDate()));
+            statement.setString(1, product.getName());
+            statement.setDouble(2, product.getPrice());
+            statement.setInt(3, product.getQuantity());
+            statement.setDate(4, Date.valueOf(product.getDate()));
+            statement.setInt(5, product.getId());
             statement.executeUpdate();
         } catch (SQLException e) {
             printError("Connection error occurred" + e.getMessage());
