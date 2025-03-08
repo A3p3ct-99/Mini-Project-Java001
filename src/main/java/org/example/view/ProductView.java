@@ -14,6 +14,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
@@ -25,6 +26,7 @@ import static org.example.constant.Error.*;
 import static org.example.constant.Success.*;
 import static org.example.constant.TableConfig.*;
 import static org.example.constant.Validation.*;
+import static org.example.utils.ProductUtils.createProductEntity;
 import static org.example.utils.ProductUtils.readProductsFromFile;
 
 public class ProductView {
@@ -350,7 +352,22 @@ public class ProductView {
     }
 
     private void saveProduct() {
-        productService.saveProduct();
+        while(true) {
+            String saveOption = getValidatedInput(
+                    scanner::nextLine,
+                    value -> {
+                        if (value.isEmpty()) {
+                            return new ValidationResult(false, ERROR_CHOICE_EMPTY);
+                        } else if (!value.matches("^(si|su|b)$")) {
+                            return new ValidationResult(false, "Invalid option! Please enter a valid option ('si', 'su', 'b')!");
+                        }
+                        return new ValidationResult(true, "");
+                    },
+                    "Enter 'si' for save add products, 'su' for save update products or 'b' for back to menu: "
+            );
+            productService.saveProduct(saveOption);
+            menu();
+        }
     }
 
     private void unsavedProduct() {

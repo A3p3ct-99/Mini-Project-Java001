@@ -76,4 +76,12 @@ public class ProductUtils {
             System.out.println();
         }
     }
+
+    public static void clearProductFile(String fileName) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            writer.write("");
+        } catch (IOException e) {
+            System.out.println();
+        }
+    }
 }

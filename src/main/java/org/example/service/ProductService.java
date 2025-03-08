@@ -11,7 +11,7 @@ public interface ProductService {
     void deleteProduct(String id);
     void searchProduct(String name);
     void setRowTable(String numRows);
-    void saveProduct();
+    void saveProduct(String savedInput);
     void unsavedProduct(List<Product> insertedProduct, List<Product> updatedProduct, String unsavedInput);
     void backUpDatabase();
     void restoreDatabase();

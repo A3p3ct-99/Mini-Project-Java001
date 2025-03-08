@@ -9,6 +9,7 @@ import org.example.constant.Validation;
 import org.example.dao.ProductDAO;
 import org.example.dao.ProductDAOImpl;
 import org.example.dto.Product;
+import org.example.model.ProductEntity;
 import org.example.utils.ProductUtils;
 import org.example.validation.ValidationResult;
 
@@ -85,8 +86,51 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void saveProduct() {
-
+    public void saveProduct(String savedOption) {
+        if (savedOption.equals("b")) {
+            return;
+        }
+        var insertedProducts = readProductsFromFile(INSERT_PRODUCT_FILE_NAME);
+        var updatedProducts = readProductsFromFile(UPDATE_PRODUCT_FILE_NAME);
+        switch (savedOption) {
+            case "si" -> {
+                if (insertedProducts.isEmpty()) {
+                    System.out.println(RED + "❌ No unsaved product write to save." + RESET);
+                    return;
+                }
+                insertedProducts.forEach(product -> {
+                    ProductEntity productEntity = createProductEntity(
+                            product.getId(),
+                            product.getName(),
+                            product.getPrice(),
+                            product.getQuantity(),
+                            product.getDate()
+                    );
+                    productDAO.addProduct(productEntity);
+                    System.out.println(GREEN + "✅ Product saved successfully." + RESET);
+                    clearProductFile(INSERT_PRODUCT_FILE_NAME);
+                });
+            }
+            case "su" -> {
+                if (updatedProducts.isEmpty()) {
+                    System.out.println(RED + "❌ No unsaved product update to save." + RESET);
+                    return;
+                }
+                updatedProducts.forEach(product -> {
+                    ProductEntity productEntity = createProductEntity(
+                            product.getId(),
+                            product.getName(),
+                            product.getPrice(),
+                            product.getQuantity(),
+                            product.getDate()
+                    );
+                    productDAO.updateProduct(productEntity);
+                    System.out.println(GREEN + "✅ Product updated successfully." + RESET);
+                    clearProductFile(UPDATE_PRODUCT_FILE_NAME);
+                });
+            }
+            default -> System.out.println(Color.RED + "\nInvalid Option... Please try again!!!" + Color.RESET);
+        }
     }
 
     @Override
