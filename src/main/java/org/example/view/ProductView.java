@@ -2,8 +2,11 @@ package org.example.view;
 
 
 import org.example.constant.Color;
+import org.example.constant.TableConfig;
+import org.example.constant.Validation;
 import org.example.dto.Product;
 import org.example.functional.Command;
+import org.example.model.ProductEntity;
 import org.example.service.ProductService;
 import org.example.validation.ValidationResult;
 
@@ -19,9 +22,9 @@ import static org.example.constant.Color.*;
 import static org.example.constant.Color.RED;
 import static org.example.constant.Config.*;
 import static org.example.constant.Error.*;
+import static org.example.constant.Success.*;
 import static org.example.constant.TableConfig.*;
-import static org.example.constant.Validation.getValidatedInput;
-import static org.example.constant.Validation.validateMenuOption;
+import static org.example.constant.Validation.*;
 import static org.example.utils.ProductUtils.readProductsFromFile;
 
 public class ProductView {
@@ -134,7 +137,116 @@ public class ProductView {
     }
 
     public void updateProduct() {
-        productService.updateProduct();
+        while (true) {
+            String productId = Validation.getValidatedInput(
+                    scanner::nextLine,
+                    value -> value.isBlank() ? new ValidationResult(false, ERROR_OPTION_EMPTY) : new ValidationResult(true, ""),
+                    "Enter the product ID to update: "
+            );
+            var searchProduct = productService.getAllProducts().stream()
+                    .filter(product -> product.getId().equals(productId))
+                    .findFirst();
+
+            if (searchProduct.isEmpty()) {
+                System.out.println(RED + "Product not found with ID: " + productId + RESET);
+            } else {
+                updateProductFields(searchProduct.get());
+                menu();
+                break;
+            }
+        }
+
+    }
+
+    private void updateProductFields(Product product) {
+        displayProductByIdAndName(product);
+        Product updatedProductCopy = new Product(product.getId(), product.getName(), product.getPrice(), product.getQuantity(), product.getDate());
+        while (true) {
+            String choiceInput = Validation.getValidatedInput(
+                    () -> {
+                        System.out.print(ENTER_CHOICE_UPDATE);
+                        return scanner.nextLine();
+                    },
+                    value -> {
+                        if (value.isEmpty()) {
+                            return new ValidationResult(false, ERROR_CHOICE_EMPTY);
+                        } else if (!value.matches(REGEX_NUMBER)) {
+                            return new ValidationResult(false, ERROR_INVALID_NUMBER);
+                        } else if (!value.matches(REGEX_CHOICE_UPDATE)) {
+                            return new ValidationResult(false, ERROR_INVALID_UPDATE_CHOICE);
+                        }
+                        return new ValidationResult(true, "");
+                    },
+                    "1. Name     2. Quantity     3. Price      4. All fields      5. Exit\n"
+            );
+            int choice = Integer.parseInt(choiceInput);
+
+            if (choice == 5) {
+                System.out.println(SUCCESS_EXIT);
+                return;
+            }
+
+            switch (choice) {
+                case 1:
+                    String newName = Validation.getValidatedInput(
+                            scanner::nextLine,
+                            value -> isValidName(value) ? new ValidationResult(true, "") : new ValidationResult(false, ERROR_INVALID_NAME),
+                            "Enter new name: "
+                    );
+                    updatedProductCopy.setName(newName);
+                    System.out.println(SUCCESS_NAME_UPDATED);
+                    break;
+
+                case 2:
+                    String newQty = Validation.getValidatedInput(
+                            scanner::nextLine,
+                            value -> isValidQuantity(value) ? new ValidationResult(true, "") : new ValidationResult(false, ERROR_INVALID_QUANTITY),
+                            "Enter new quantity: "
+                    );
+                    updatedProductCopy.setQuantity(newQty);
+                    System.out.println(SUCCESS_QUANTITY_UPDATED);
+                    break;
+
+                case 3:
+                    String newPrice = Validation.getValidatedInput(
+                            scanner::nextLine,
+                            value -> isValidPrice(value) ? new ValidationResult(true, "") : new ValidationResult(false, ERROR_INVALID_PRICE),
+                            "Enter new price: "
+                    );
+                    updatedProductCopy.setPrice(newPrice);
+                    System.out.println(SUCCESS_PRICE_UPDATED);
+                    break;
+                case 4:
+                    String newNameAll = Validation.getValidatedInput(
+                            scanner::nextLine,
+                            value -> isValidName(value) ? new ValidationResult(true, "") : new ValidationResult(false, org.example.constant.Error.ERROR_INVALID_NAME),
+                            "Enter new name: "
+                    );
+                    updatedProductCopy.setName(newNameAll);
+
+                    String newQtyAll = Validation.getValidatedInput(
+                            scanner::nextLine,
+                            value -> isValidQuantity(value) ? new ValidationResult(true, "") : new ValidationResult(false, org.example.constant.Error.ERROR_INVALID_QUANTITY),
+                            "Enter new quantity: "
+                    );
+                    updatedProductCopy.setQuantity(newQtyAll);
+
+                    String newPriceAll = Validation.getValidatedInput(
+                            scanner::nextLine,
+                            value -> isValidPrice(value) ? new ValidationResult(true, "") : new ValidationResult(false, org.example.constant.Error.ERROR_INVALID_PRICE),
+                            "Enter new price: "
+                    );
+                    updatedProductCopy.setPrice(newPriceAll);
+
+                    System.out.println(SUCCESS_ALL_FIELDS_UPDATED);
+                    displayProductTable(List.of(updatedProductCopy), 0, 1, 1, 1);
+                    break;
+                default:
+                    System.out.println(ERROR_INVALID_UPDATE_CHOICE);
+            }
+            productService.updateProduct(updatedProductCopy);
+            System.out.println("Product updated temporarily. Use 'saveProduct' to save changes.");
+        }
     }
 
     public void displayProductById() {

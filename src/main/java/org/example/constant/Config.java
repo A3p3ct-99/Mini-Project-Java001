@@ -25,8 +25,12 @@ public class Config {
     public static final String REGEX_PRODUCT_ID = "[1-9][0-9]*";
     public static final String REGEX_LETTERS_NUMBERS_SPACES = "[a-zA-Z0-9\\s]+";
     public static final String REGEX_PRODUCT_QUANTITY = "^\\d{1,8}$";
-    public static final String REGEX_NUMBER = "^[0-9]+$";
+    public static final String REGEX_NUMBER = "[0-9]+";
     public static final String REGEX_DELETE_ID = "[1-9][0-9]*";
+    public static final String REGEX_SEARCH_NAME = "[a-zA-Z0-9\\s]+";
+    public static final String REGEX_PAGE_NUMBER = "[1-9][0-9]*";
+    public static final String REGEX_ROWS = "[1-9][0-9]*";
+    public static final String REGEX_CHOICE_UPDATE = "[1-5]";
 
 
     //Enter Message
@@ -41,6 +45,7 @@ public class Config {
     public static final String ENTER_PAGE_NUMBER = "Enter page number: ";
     public static final String ENTER_CONTINUE = "Press Enter to continue...";
     public static final String ENTER_ID_SEARCH = "Enter ID to search: ";
+    public static final String ENTER_CHOICE_UPDATE = "Choose an option to update: ";
 
     public static void printError(String message){
         System.out.println("\n" + RED + "❌ " + message + RESET);

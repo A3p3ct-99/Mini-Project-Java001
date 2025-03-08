@@ -7,7 +7,7 @@ import java.util.List;
 public interface ProductService {
     void writeProduct(Product product);
     void readProduct(String id);
-    void updateProduct();
+    void updateProduct(Product product);
     void deleteProduct(String id);
     void searchProduct(String name);
     void setRowTable(String numRows);

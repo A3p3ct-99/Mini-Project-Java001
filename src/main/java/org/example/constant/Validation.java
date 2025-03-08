@@ -62,4 +62,26 @@ public class Validation {
         }
         return true;
     }
+
+    public static boolean isValidName(String name) {
+        return name.matches("^[a-zA-Z][a-zA-Z0-9 ]*$");
+    }
+
+    public static boolean isValidQuantity(String quantity) {
+        try {
+            int qty = Integer.parseInt(quantity);
+            return qty > 0;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    public static boolean isValidPrice(String price) {
+        try {
+            float pr = Float.parseFloat(price);
+            return pr > 0;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
 }

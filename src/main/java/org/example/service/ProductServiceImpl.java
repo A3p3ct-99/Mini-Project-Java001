@@ -3,32 +3,34 @@ package org.example.service;
 
 
 import org.example.constant.Color;
+import org.example.constant.Error;
+import org.example.constant.TableConfig;
+import org.example.constant.Validation;
 import org.example.dao.ProductDAO;
 import org.example.dao.ProductDAOImpl;
 import org.example.dto.Product;
 import org.example.utils.ProductUtils;
+import org.example.validation.ValidationResult;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static org.example.constant.Color.*;
 import static org.example.constant.Color.RESET;
-import static org.example.constant.Config.INSERT_PRODUCT_FILE_NAME;
-import static org.example.constant.Config.printError;
+import static org.example.constant.Config.*;
+import static org.example.constant.Error.ERROR_OPTION_EMPTY;
 import static org.example.constant.TableConfig.displayProductByIdAndName;
 import static org.example.constant.TableConfig.displayProductTable;
-import static org.example.utils.ProductUtils.writeProductToFile;
+import static org.example.utils.ProductUtils.*;
 
 
 public class ProductServiceImpl implements ProductService {
 
-
-    List<Product> products = new ArrayList<>();
-    List<Product> insertedProduct = new ArrayList<>();
-    List<Product> updatedProduct = new ArrayList<>();
     ProductDAO productDAO = new ProductDAOImpl();
 
     @Override
@@ -51,8 +53,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void updateProduct() {
-
+    public void updateProduct(Product product) {
+        var productList = readProductsFromFile(UPDATE_PRODUCT_FILE_NAME);
+        var updatedProduct = productList.stream()
+                .map(p -> p.getId().equals(product.getId()))
+                .toList();
+        if (updatedProduct.isEmpty()) {
+            writeProductToFile(product, UPDATE_PRODUCT_FILE_NAME);
+            return;
+        }
+        updateProductToFile(product, UPDATE_PRODUCT_FILE_NAME);
     }
 
     @Override

@@ -59,4 +59,21 @@ public class ProductUtils {
             System.out.println();
         }
     }
+
+    public static void updateProductToFile(Product product, String fileName) {
+        List<Product> products = readProductsFromFile(fileName);
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            for (Product p : products) {
+                if (p.getId().equals(product.getId())) {
+                    writer.write(String.join(",", product.getId(), product.getName(), product.getPrice(), product.getQuantity(), product.getDate()));
+                } else {
+                    writer.write(String.join(",", p.getId(), p.getName(), p.getPrice(), p.getQuantity(), p.getDate()));
+                }
+                writer.newLine();
+            }
+            System.out.println("Product successfully updated!");
+        } catch (IOException e) {
+            System.out.println();
+        }
+    }
 }
