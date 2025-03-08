@@ -23,6 +23,8 @@ public class    ProductDAOImpl implements ProductDAO {
 
     Scanner scanner = new Scanner(System.in);
     List<Product> products = new ArrayList<>();
+    List<Product> insertedProduct = new ArrayList<>();
+    List<Product> updatedProduct = new ArrayList<>();
 
 
     @Override
@@ -77,26 +79,47 @@ public class    ProductDAOImpl implements ProductDAO {
 
     @Override
     public void unsavedProduct() {
+        //Noted: Data will duplicate each time of this method reuse. So if merge it just remove the example data below and put the match collection
+        //example inserted data
+        insertedProduct.add(new Product("7", "Ipad", "450", "5", "12/04/2024"));
+        insertedProduct.add(new Product("8", "Jacked", "50", "10", "12/04/2024"));
+        //example updated data
+        updatedProduct.add(new Product("7", "Iphone", "450", "5", "12/04/2024"));
+        updatedProduct.add(new Product("8", "Jacked", "50", "20", "12/04/2024"));
         System.out.println(Color.GREEN+"'ui' "+Color.RESET + "for saving products and"+Color.GREEN+" 'uu' "+ Color.RESET+"for saving update products or"+Color.RED+" 'b' "+Color.RESET+"for back to menu");
-        String unsavedInput = getValidatedInput(
-                scanner::nextLine,
-                value -> {
-                    if (!value.matches("[a-zA-Z]")){
-                        return new ValidationResult(false, "Invalid input! Allowed only characters!<");
-                    }
-                    return new ValidationResult(true, "");
-                },"\nEnter your option: "
-        );
-        switch (unsavedInput){
-            case "ui" ->{
-                //products should be an insert product collection
-                TableConfig.displayUnsaveProductTable(products);
+        while (true){
+            String unsavedInput = getValidatedInput(
+                    scanner::nextLine,
+                    value -> {
+                        if(value.isEmpty()){
+                            return new ValidationResult(false, "Input can not be empty!");
+                        }
+                        else if (!value.matches("^[a-zA-Z]+$")){
+                            return new ValidationResult(false, "Invalid input! Allowed only characters!<");
+                        }
+                        return new ValidationResult(true, "");
+                    },"\nEnter your option: "
+            );
+            switch (unsavedInput.toLowerCase()){
+                case "ui" ->{
+                    //products should be an insert product collection
+                    TableConfig.displayUnsaveProductTable(insertedProduct);
+                }
+                case "uu" ->{
+                    //products should be an updated product collection
+                    TableConfig.displayUnsaveProductTable(updatedProduct);
+                }
+                case "b" ->{
+                    return;
+                }
+                default -> {
+                    System.out.println(Color.RED+"❌ Invalid option! Please enter a valid option ('ui', 'uu', 'b')! Try again."+Color.RESET);
+                    continue;
+                }
             }
-            case "un" ->{
-                //products should be an updated product collection
-                TableConfig.displayUnsaveProductTable(products);
-            }
-            default ->{}
+            System.out.println(Color.YELLOW+ "Enter to continue..."+Color.RESET);
+            scanner.nextLine();
+            break;
         }
     }
 

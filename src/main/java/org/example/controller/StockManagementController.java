@@ -95,6 +95,7 @@ public class StockManagementController {
 
     private void unsavedProduct() {
         stockService.unsavedProduct();
+        menu();
     }
 
     private void backUpDatabase() {
