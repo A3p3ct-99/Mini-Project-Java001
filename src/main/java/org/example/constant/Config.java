@@ -12,6 +12,10 @@ public class Config {
     public static final String REGEX_TABLE_OPTION = "^(?i)(N|P|F|L|G|W|R|U|D|S|Se|sa|Un|Ba|Re|E)$";
     public static final String REGEX_PRODUCT_ID = "[1-9][0-9]*";
 
+
+    public static final String REGEX_DELETE_ID = "[1-9][0-9]*";
+
+
     //Enter Message
     public static final String ENTER_OPTION = "Choose an option(): ";
     public static final String ENTER_PRODUCT_NAME = "Enter product name: ";

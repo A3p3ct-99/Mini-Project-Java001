@@ -7,3 +7,5 @@ import org.example.validation.ValidationResult;
 public interface ValidationPredicate {
     ValidationResult test(String value);
 }
+
+
