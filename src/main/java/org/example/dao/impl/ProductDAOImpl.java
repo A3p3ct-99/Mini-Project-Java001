@@ -11,6 +11,7 @@ import java.util.Scanner;
 
 import static org.example.constant.Config.ENTER_ROWS;
 import static org.example.constant.Validation.getValidatedInput;
+import static org.example.utils.ProductUtils.writeProductToFile;
 
 public class ProductDAOImpl implements ProductDAO {
 
@@ -19,16 +20,7 @@ public class ProductDAOImpl implements ProductDAO {
 
     @Override
     public void writeProduct(Product product) {
-        products.add(product);
-
-        // Save product to a file you can modify this to use in a database
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("products.txt", true))) {
-            writer.write(product.getId() + "," + product.getName() + "," + product.getPrice() + "," + product.getQuantity() + "," + product.getDate());
-            writer.newLine();
-            System.out.println("Product successfully saved!");
-        } catch (IOException e) {
-            System.out.println("Error saving product: " + e.getMessage());
-        }
+        writeProductToFile(product);
     }
 
     @Override

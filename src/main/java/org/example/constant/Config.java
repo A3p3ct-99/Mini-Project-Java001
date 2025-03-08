@@ -11,6 +11,7 @@ public class Config {
 
     public static final String REGEX_TABLE_OPTION = "^(?i)(N|P|F|L|G|W|R|U|D|S|Se|sa|Un|Ba|Re|E)$";
     public static final String REGEX_PRODUCT_ID = "[1-9][0-9]*";
+    public static final String REGEX_PRODUCT_QUANTITY = "^\\d{1,8}$";
 
     //Enter Message
     public static final String ENTER_OPTION = "Choose an option(): ";
@@ -22,6 +23,7 @@ public class Config {
     public static final String ENTER_SEARCH_NAME = "Enter product name to search: ";
     public static final String ENTER_ROWS = "Enter rows to show: ";
     public static final String ENTER_PAGE_NUMBER = "Enter page number: ";
+    public static final String ENTER_CONTINUE = "Press Enter to continue...";
 
     public static void printFooterTable() {
         System.out.println("\t".repeat(8) + "----------- Menu -----------");
