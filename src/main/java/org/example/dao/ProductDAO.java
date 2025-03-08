@@ -1,14 +1,15 @@
 package org.example.dao;
 
+import org.example.model.ProductEntity;
+
+import java.util.List;
+import java.util.Optional;
+
 public interface ProductDAO {
-    void writeProduct();
-    void readProduct();
-    void updateProduct();
-    void deleteProduct();
-    void searchProduct();
-    void setRowTable();
-    void saveProduct();
-    void unsavedProduct();
-    void backUpDatabase();
-    void restoreDatabase();
+    Optional<ProductEntity> getProductById(int id);
+    Optional<List<ProductEntity>> getProductsByNameIgnoreCase(String name);
+    void addProduct(ProductEntity product);
+    void updateProduct(ProductEntity product);
+    void deleteProduct(int id);
+    List<ProductEntity> getAllProducts();
 }

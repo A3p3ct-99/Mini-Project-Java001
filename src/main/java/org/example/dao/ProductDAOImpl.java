@@ -1,24 +1,22 @@
-package org.example.model.impl;
+package org.example.dao;
 
 
-import org.example.domain.DatabaseConnectionManager;
+import org.example.manager.DatabaseConnectionManager;
 import org.example.model.ProductEntity;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.example.constant.Config.printError;
+import static org.example.constant.Config.*;
 
 
-public class ProductModelImplement {
+public class ProductDAOImpl implements ProductDAO {
 
     private final DatabaseConnectionManager databaseConnectionManager;
 
-    public ProductModelImplement() {
+    public ProductDAOImpl() {
         this.databaseConnectionManager = new DatabaseConnectionManager();
     }
 
@@ -63,37 +61,45 @@ public class ProductModelImplement {
     }
 
     public void addProduct(ProductEntity product) {
-        String query = "INSERT INTO products (name, price, quantity, date) VALUES ('" + product.getName() + "', " + product.getPrice() + ", " + product.getQuantity() + ", '" + product.getDate() + "')";
-        try (Statement statement = databaseConnectionManager.getConnection().createStatement()) {
-            statement.executeUpdate(query);
+        try (PreparedStatement statement = databaseConnectionManager.getConnection().prepareStatement(QUERY_INSERT)) {
+            statement.setInt(1, product.getId());
+            statement.setString(2, product.getName());
+            statement.setDouble(3, product.getPrice());
+            statement.setInt(4, product.getQuantity());
+            statement.setDate(5, Date.valueOf(product.getDate()));
+            statement.execute();
         } catch (SQLException e) {
             printError("Connection error occurred" + e.getMessage());
         }
     }
 
     public void updateProduct(ProductEntity product) {
-        String query = "UPDATE products SET name = '" + product.getName() + "', price = " + product.getPrice() + ", quantity = " + product.getQuantity() + ", date = '" + product.getDate() + "' WHERE id = " + product.getId();
-        try (Statement statement = databaseConnectionManager.getConnection().createStatement()) {
-            statement.executeUpdate(query);
+        try (PreparedStatement statement = databaseConnectionManager.getConnection().prepareStatement(QUERY_UPDATE)) {
+            statement.setInt(1, product.getId());
+            statement.setString(2, product.getName());
+            statement.setDouble(3, product.getPrice());
+            statement.setInt(4, product.getQuantity());
+            statement.setDate(5, Date.valueOf(product.getDate()));
+            statement.executeUpdate();
         } catch (SQLException e) {
             printError("Connection error occurred" + e.getMessage());
         }
     }
 
     public void deleteProduct(int id) {
-        String query = "DELETE FROM products WHERE id = " + id;
-        try (Statement statement = databaseConnectionManager.getConnection().createStatement()) {
-            statement.executeUpdate(query);
+        try (Connection connection = databaseConnectionManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(QUERY_DELETE)) {
+            statement.setInt(1, id);
+            statement.executeUpdate();
         } catch (SQLException e) {
-            printError("Connection error occurred" + e.getMessage());
+            printError("Connection error occurred: " + e.getMessage());
         }
     }
 
     public List<ProductEntity> getAllProducts() {
-        String query = "SELECT * FROM products";
         List<ProductEntity> products = new ArrayList<>();
         try (Statement statement = databaseConnectionManager.getConnection().createStatement();
-             ResultSet resultSet = statement.executeQuery(query)) {
+             ResultSet resultSet = statement.executeQuery(QUERY_SELECT_ALL)) {
             while (resultSet.next()) {
                 ProductEntity product = new ProductEntity(
                         resultSet.getInt("id"),
@@ -109,6 +115,5 @@ public class ProductModelImplement {
         }
         return products;
     }
-
 
 }

@@ -1,17 +1,15 @@
-package org.example.controller;
+package org.example.view;
 
 
 import org.example.dto.Product;
 import org.example.functional.Command;
-import org.example.model.impl.ProductModelImplement;
-import org.example.dao.ProductDAO;
-import org.example.utils.ProductUtils;
+import org.example.dao.ProductDAOImpl;
+import org.example.service.ProductService;
 import org.example.validation.ValidationResult;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
@@ -20,23 +18,20 @@ import static org.example.constant.Color.RESET;
 import static org.example.constant.Color.YELLOW;
 import static org.example.constant.Config.*;
 import static org.example.constant.TableConfig.displayProductTable;
+import static org.example.constant.TableConfig.printFooterTable;
 import static org.example.constant.Validation.getValidatedInput;
 import static org.example.constant.Validation.validateMenuOption;
 
-public class StockManagementController {
+public class ProductView {
 
     int totalPage = 1;
     int currentPage = 1;
-
-    private final ProductDAO stockService;
-    private ProductModelImplement productView;
-
     Scanner scanner = new Scanner(System.in);
+    private final ProductService productService;
     private final HashMap<String, Command> commands = new HashMap<>();
 
-    public StockManagementController(ProductDAO stockService) {
-        this.productView = new ProductModelImplement();
-        this.stockService = stockService;
+    public ProductView(ProductService productService) {
+        this.productService = productService;
 
         commands.put("n", this::nextPage);
         commands.put("p", this::previousPage);
@@ -59,51 +54,60 @@ public class StockManagementController {
         scanner.close();
     }
 
-    private void menu() {
-        var productsEntity = productView.getAllProducts();
-        List<Product> products = productsEntity.stream().map(ProductUtils::getProductFromDatabase).toList();
+    public void menu() {
+        List<Product> products = productService.getAllProducts();
         handlePagination(products);
     }
 
-    private void insertProduct() {
-        stockService.writeProduct();
+    public void insertProduct() {
+        productService.writeProduct();
     }
 
-    private void updateProduct() {
-        stockService.updateProduct();
+    public void updateProduct() {
+        productService.updateProduct();
     }
 
-    private void displayProduct() {
-        stockService.readProduct();
+    public void displayProduct() {
+        productService.readProduct();
     }
 
-    private void deleteProduct() {
-        stockService.deleteProduct();
+    public void deleteProduct() {
+        productService.deleteProduct();
     }
 
-    private void searchProduct() {
-        stockService.searchProduct();
+    public void searchProduct() {
+        productService.searchProduct();
     }
 
-    private void setRowTable() {
-        stockService.setRowTable();
+    public void setRowTable() {
+        String numRows = getValidatedInput(
+                scanner::nextLine,
+                value -> {
+                    if (!value.matches("\\d+")) {
+                        return new ValidationResult(false, "Invalid input, please enter a number");
+                    }
+                    return new ValidationResult(true, "");
+                },
+                "\n" + ENTER_ROWS
+        );
+        productService.setRowTable(numRows);
         menu();
     }
 
     private void saveProduct() {
-        stockService.saveProduct();
+        productService.saveProduct();
     }
 
     private void unsavedProduct() {
-        stockService.unsavedProduct();
+        productService.unsavedProduct();
     }
 
     private void backUpDatabase() {
-        stockService.backUpDatabase();
+        productService.backUpDatabase();
     }
 
     private void restoreDatabase() {
-        stockService.restoreDatabase();
+        productService.restoreDatabase();
     }
 
     private void exit() {

@@ -50,4 +50,13 @@ public class TableConfig {
         }
         System.out.println(table.render());
     }
+
+    public static void printFooterTable() {
+        System.out.println("\t".repeat(8) + "----------- Menu -----------");
+        System.out.printf("\t" + "   %sN.%s Next Page      %sP.%s Previous Page      %sF.%s First Page      %sL.%s Last Page      %sG.%s Goto\n", LIGHT_GREEN, RESET, LIGHT_GREEN, RESET, LIGHT_GREEN, RESET, LIGHT_GREEN, RESET, LIGHT_GREEN, RESET);
+        System.out.println();
+        System.out.printf("%sW)%s Write        %sR)%s Read          %sU)%s Update        %sD)%s Delete        %sS)%s Search (name)        %sSe)%s Set rows\n", LIGHT_GREEN, RESET, LIGHT_GREEN, RESET, LIGHT_GREEN, RESET, LIGHT_GREEN, RESET, LIGHT_GREEN, RESET, LIGHT_GREEN, RESET);
+        System.out.printf("%ssa)%s Save        %sUn)%s Unsaved      %sBa)%s Backup       %sRe)%s Restore      %sE)%s Exit\n", LIGHT_GREEN, RESET, LIGHT_GREEN, RESET, LIGHT_GREEN, RESET, LIGHT_GREEN, RESET, LIGHT_GREEN, RESET);
+        System.out.println("\t".repeat(8) + "----------------------------");
+    }
 }
