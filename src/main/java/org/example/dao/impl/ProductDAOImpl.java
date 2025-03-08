@@ -69,23 +69,31 @@ public class ProductDAOImpl implements ProductDAO {
                     .findFirst()
                     .orElse(null);
 
+            boolean isValidConform = false;
+
             if(productDeleted !=null){
                 printSingleTable(productDeleted);
-                System.out.print(YELLOW+"Are you sure want to deleted this product? (Y/N):"+RESET);
-                String confirmation = scanner.nextLine().trim().toLowerCase();
-                if(confirmation.equals("y")){
-                    productEntityList.remove(productDeleted);
-                    productModelImplement.deleteProduct(productDeleted.getId());
-                    System.out.println(GREEN + "Product deleted successfully ✅" + RESET);
-                }else{
-                    System.out.println(YELLOW + "Deletion cancelled." + RESET);
-                }
+                do{
+                    System.out.print(YELLOW+"Are you sure want to deleted this product? (Y/N):"+RESET);
+                    String confirmation = scanner.nextLine().trim().toLowerCase();
+                    if(confirmation.equals("y")){
+                        productEntityList.remove(productDeleted);
+                        productModelImplement.deleteProduct(productDeleted.getId());
+                        System.out.println(GREEN + "Product deleted successfully ✅" + RESET);
+                        isValidConform = true;
+                    }else if(confirmation.equals("n")){
+                        System.out.println(YELLOW + "Deletion cancelled." + RESET);
+                        isValidConform = true;
+                    }else{
+                        System.out.println(RED + " ❌ INVALID INPUT, PLEASE ENTER (Y/N)." + RESET);
+                    }
+                } while (!isValidConform);
+
             }else {
                 System.out.println(RED + "Product not found with ID: " + productId + RESET);
             }
             break;
         }
-
         ProductDAO service = new ProductDAOImpl();
         StockManagementController stockManagementController = new StockManagementController(service);
         stockManagementController.start();
