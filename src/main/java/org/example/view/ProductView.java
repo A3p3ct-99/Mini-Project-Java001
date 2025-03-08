@@ -17,6 +17,7 @@ import java.util.Scanner;
 import static org.example.constant.Color.RESET;
 import static org.example.constant.Color.YELLOW;
 import static org.example.constant.Config.*;
+import static org.example.constant.Error.*;
 import static org.example.constant.TableConfig.displayProductTable;
 import static org.example.constant.TableConfig.printFooterTable;
 import static org.example.constant.Validation.getValidatedInput;
@@ -42,7 +43,7 @@ public class ProductView {
         commands.put("g", this::gotoPage);
         commands.put("w", this::insertProduct);
         commands.put("u", this::updateProduct);
-        commands.put("r", this::displayProduct);
+        commands.put("r", this::displayProductById);
         commands.put("d", this::deleteProduct);
         commands.put("s", this::searchProduct);
         commands.put("se", this::setRowTable);
@@ -131,8 +132,25 @@ public class ProductView {
         productService.updateProduct();
     }
 
-    public void displayProduct() {
-        productService.readProduct();
+    public void displayProductById() {
+        String id = getValidatedInput(
+                scanner::nextLine,
+                value -> {
+                    if (value.isEmpty()) {
+                        return new ValidationResult(false, ERROR_INVALID_ID);
+                    } else if (!value.matches("\\d+")) {
+                        return new ValidationResult(false, ERROR_INVALID_INPUT);
+                    } else if (value.matches("0")) {
+                        return new ValidationResult(false, ERROR_INVALID_ID_GREATER_THAN_ZERO);
+                    }
+                    return new ValidationResult(true, "");
+                },
+                ENTER_ID_SEARCH
+        );
+        productService.readProduct(id);
+        System.out.println(ENTER_CONTINUE);
+        scanner.nextLine();
+        menu();
     }
 
     public void deleteProduct() {

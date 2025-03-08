@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface ProductService {
     void writeProduct(Product product);
-    void readProduct();
+    void readProduct(String id);
     void updateProduct();
     void deleteProduct();
     void searchProduct();

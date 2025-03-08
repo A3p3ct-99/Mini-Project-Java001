@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.example.constant.Config.printError;
+import static org.example.constant.TableConfig.displayProductByIdAndName;
 import static org.example.utils.ProductUtils.writeProductToFile;
 
 
@@ -28,8 +30,17 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void readProduct() {
-
+    public void readProduct(String id) {
+        int productId = Integer.parseInt(id);
+        var productEntity = productDAO.getProductById(productId);
+        var product = productEntity
+                .map(ProductUtils::getProductFromDatabase)
+                .orElse(null);
+        if (product == null) {
+            printError("Product with id " + productId + " not found.");
+            return;
+        }
+        displayProductByIdAndName(product);
     }
 
     @Override

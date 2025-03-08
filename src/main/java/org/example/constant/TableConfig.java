@@ -16,20 +16,7 @@ public class TableConfig {
     public static void displayProductTable(List<Product> products, int start, int end, int totalPages, int currentPage) {
         Table table = new Table(5, BorderStyle.UNICODE_ROUND_BOX_WIDE, ShownBorders.ALL);
         CellStyle style = new CellStyle(CellStyle.HorizontalAlign.CENTER);
-
-        table.addCell(LIGHT_YELLOW + "ID", style);
-        table.addCell(LIGHT_BLUE +  "Name" + RESET, style);
-        table.addCell(LIGHT_CYAN +  "Unit Price", style);
-        table.addCell(LIGHT_PURPLE + "Quantity", style);
-        table.addCell(LIGHT_GREEN + "Imported Date", style);
-
-        //set width column table
-        table.setColumnWidth(0, 10, 10);
-        table.setColumnWidth(1, 35, 35);
-        table.setColumnWidth(2, 15, 15);
-        table.setColumnWidth(3, 10, 10);
-        table.setColumnWidth(4, 15, 15);
-
+        printHeaderTable(table, style);
         if (!products.isEmpty()) {
             for (int i = start; i < end; i++) {
                 table.addCell(LIGHT_GREEN + products.get(i).getId(), style);
@@ -51,11 +38,38 @@ public class TableConfig {
         System.out.println(table.render());
     }
 
+    public static void displayProductByIdAndName(Product product) {
+        Table table = new Table(5, BorderStyle.UNICODE_ROUND_BOX_WIDE, ShownBorders.ALL);
+        CellStyle style = new CellStyle(CellStyle.HorizontalAlign.CENTER);
+        printHeaderTable(table, style);
+        table.addCell(LIGHT_GREEN + product.getId(), style);
+        table.addCell(CYAN + ITALIC + product.getName() , style);
+        table.addCell(RED + ITALIC + product.getPrice(), style);
+        table.addCell(BLUE + product.getQuantity(), style);
+        table.addCell(PINK + product.getDate(), style);
+        System.out.println(table.render());
+    }
+
+    private static void printHeaderTable(Table table, CellStyle style) {
+        table.addCell(LIGHT_YELLOW + "ID", style);
+        table.addCell(LIGHT_BLUE +  "Name" + RESET, style);
+        table.addCell(LIGHT_CYAN +  "Unit Price", style);
+        table.addCell(LIGHT_PURPLE + "Quantity", style);
+        table.addCell(LIGHT_GREEN + "Imported Date", style);
+
+        //set width column table
+        table.setColumnWidth(0, 10, 10);
+        table.setColumnWidth(1, 35, 35);
+        table.setColumnWidth(2, 15, 15);
+        table.setColumnWidth(3, 10, 10);
+        table.setColumnWidth(4, 15, 15);
+    }
+
     public static void printFooterTable() {
         System.out.println("\t".repeat(8) + "----------- Menu -----------");
         System.out.printf("\t" + "   %sN.%s Next Page      %sP.%s Previous Page      %sF.%s First Page      %sL.%s Last Page      %sG.%s Goto\n", LIGHT_GREEN, RESET, LIGHT_GREEN, RESET, LIGHT_GREEN, RESET, LIGHT_GREEN, RESET, LIGHT_GREEN, RESET);
         System.out.println();
-        System.out.printf("%sW)%s Write        %sR)%s Read          %sU)%s Update        %sD)%s Delete        %sS)%s Search (name)        %sSe)%s Set rows\n", LIGHT_GREEN, RESET, LIGHT_GREEN, RESET, LIGHT_GREEN, RESET, LIGHT_GREEN, RESET, LIGHT_GREEN, RESET, LIGHT_GREEN, RESET);
+        System.out.printf("%sW)%s Write        %sR)%s Read (id)     %sU)%s Update        %sD)%s Delete        %sS)%s Search (name)        %sSe)%s Set rows\n", LIGHT_GREEN, RESET, LIGHT_GREEN, RESET, LIGHT_GREEN, RESET, LIGHT_GREEN, RESET, LIGHT_GREEN, RESET, LIGHT_GREEN, RESET);
         System.out.printf("%ssa)%s Save        %sUn)%s Unsaved      %sBa)%s Backup       %sRe)%s Restore      %sE)%s Exit\n", LIGHT_GREEN, RESET, LIGHT_GREEN, RESET, LIGHT_GREEN, RESET, LIGHT_GREEN, RESET, LIGHT_GREEN, RESET);
         System.out.println("\t".repeat(8) + "----------------------------");
     }
