@@ -80,8 +80,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void saveProduct() {
-        if (products.isEmpty() && products2.isEmpty()) {
-            System.out.println(Color.RED + Error.ERROR_PRODUCT_ADD_NOT_FOUND + Color.RESET);
+        if (products.isEmpty()) {
+            System.out.println(Color.RED + Error.ERROR_PRODUCT_SAVE_ADD_NOT_FOUND + Color.RESET + "\n");
+            return;
+        }
+        if(products2.isEmpty()){
+            System.out.println(Color.RED + Error.ERROR_PRODUCT_SAVE_UPDATE_NOT_FOUND + Color.RESET + "\n");
             return;
         }
         while(true){
@@ -103,6 +107,7 @@ public class ProductServiceImpl implements ProductService {
                         productDAO.addProduct(product);
                         System.out.println("product " + product.getId() + Color.GREEN +" successfully added." + Color.RESET);
                     }
+                    System.out.println();
                     products.clear(); // clear product
                     productsEntitiesInsert.clear(); // clear product entity insert
                     return;
@@ -124,6 +129,7 @@ public class ProductServiceImpl implements ProductService {
                         productDAO.updateProduct(product);
                         System.out.println("product " + product.getId() + Color.GREEN +" successfully updated." + Color.RESET);
                     }
+                    System.out.println();
                     products2.clear(); // clear product
                     productsEntitiesUpdate.clear(); // clear product entity insert
                     return;

@@ -160,6 +160,7 @@ public class ProductView {
 
     private void saveProduct() {
         productService.saveProduct();
+        menu();
     }
 
     private void unsavedProduct() {
