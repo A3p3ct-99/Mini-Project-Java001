@@ -3,6 +3,7 @@ package org.example.dao.impl;
 
 
 import org.example.constant.Error;
+import org.example.constant.Validation;
 import org.example.dao.ProductDAO;
 import org.example.dto.Product;
 import org.example.validation.ValidationResult;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import static org.example.constant.Config.ENTER_ROWS;
+import static org.example.constant.Config.REGEX_TABLE_OPTION;
 import static org.example.constant.Validation.getValidatedInput;
 import static org.example.utils.ProductUtils.getProductFromDatabase;
 
@@ -39,134 +41,144 @@ public class ProductDAOImpl implements ProductDAO {
             return;
         }
 
-        System.out.println("Enter the product ID to update:");
-        String productId = scanner.nextLine(); // Read the product ID as a String
-
         Product productToUpdate = null;
-        for (Product product : products) {
-            if (product.getId().equals(productId)) { // Use .equals() for String comparison
-                productToUpdate = product;
-                break;
-            }
-        }
+        while (productToUpdate == null) {
+            // Get product ID to update
+            String productId = Validation.getValidatedInput(
+                    scanner::nextLine,
+                    value -> {
+                        if (value.isBlank()) {
+                            return new ValidationResult(false, Error.ERROR_OPTION_EMPTY);
+                        }
+                        return new ValidationResult(true, "");
+                    },
+                    "Enter the product ID to update: "
+            );
 
-        if (productToUpdate == null) {
-            System.out.println(String.format(Error.ERROR_PRODUCT_NOT_FOUND, productId));
-            return;
+            // Find the product to update
+            for (Product product : products) {
+                if (product.getId().equals(productId)) { // Use .equals() for String comparison
+                    productToUpdate = product;
+                    break;
+                }
+            }
+
+            if (productToUpdate == null) {
+                System.out.println(String.format(Error.ERROR_PRODUCT_NOT_FOUND, productId));
+            }
         }
 
         while (true) {
             System.out.println("Select the field to update:");
             System.out.println("1. Name 2. Quantity 3. Price 4. All fields 5.Exit");
 
-            int choice = 0;
-            boolean validChoice = false;
-            while (!validChoice) {
-                try {
-                    choice = scanner.nextInt(); // Read the menu choice
-                    scanner.nextLine(); // Consume the newline character
-                    if (choice >= 1 && choice <= 5) {
-                        validChoice = true; // Valid choice
-                    } else {
-                        System.out.println(Error.ERROR_INVALID_CHOICE);
-                    }
-                } catch (java.util.InputMismatchException e) {
-                    System.out.println(Error.ERROR_INVALID_INPUT);
-                    scanner.nextLine(); // Clear the invalid input from the scanner buffer
-                }
-            }
+            // Get menu choice
+            String choiceInput = Validation.getValidatedInput(
+                    scanner::nextLine,
+                    value -> {
+                        try {
+                            int choice = Integer.parseInt(value);
+                            if (choice < 1 || choice > 5) {
+                                return new ValidationResult(false, Error.ERROR_INVALID_CHOICE);
+                            }
+                            return new ValidationResult(true, "");
+                        } catch (NumberFormatException e) {
+                            return new ValidationResult(false, Error.ERROR_INVALID_CHOICE);
+                        }
+                    },
+                    "Enter your choice: "
+            );
+            int choice = Integer.parseInt(choiceInput);
 
             switch (choice) {
                 case 1:
-                    boolean retryName = true;
-                    while (retryName) {
-                        System.out.print("Enter new name: ");
-                        String newName = scanner.nextLine();
-                        if (isValidName(newName)) {
-                            productToUpdate.setName(newName);
-                            System.out.println(Error.SUCCESS_NAME_UPDATED);
-                            displayProductTable(productToUpdate); // Display updated product in table format
-                            retryName = false;
-                        } else {
-                            System.out.println(Error.ERROR_INVALID_NAME);
-                            retryName = askToRetry(); // Ask if the user wants to retry
-                        }
-                    }
+                    // Update name
+                    String newName = Validation.getValidatedInput(
+                            scanner::nextLine,
+                            value -> {
+                                if (!isValidName(value)) {
+                                    return new ValidationResult(false, Error.ERROR_INVALID_NAME);
+                                }
+                                return new ValidationResult(true, "");
+                            },
+                            "Enter new name: "
+                    );
+                    productToUpdate.setName(newName);
+                    System.out.println(Error.SUCCESS_NAME_UPDATED);
+                    displayProductTable(productToUpdate);
                     break;
                 case 2:
-                    boolean retryQty = true;
-                    while (retryQty) {
-                        System.out.print("Enter new quantity: ");
-                        String newQty = scanner.nextLine();
-                        if (isValidQuantity(newQty)) {
-                            productToUpdate.setQuantity(newQty);
-                            System.out.println(Error.SUCCESS_QUANTITY_UPDATED);
-                            displayProductTable(productToUpdate); // Display updated product in table format
-                            retryQty = false;
-                        } else {
-                            System.out.println(Error.ERROR_INVALID_QUANTITY);
-                            retryQty = askToRetry(); // Ask if the user wants to retry
-                        }
-                    }
+                    // Update quantity
+                    String newQty = Validation.getValidatedInput(
+                            scanner::nextLine,
+                            value -> {
+                                if (!isValidQuantity(value)) {
+                                    return new ValidationResult(false, Error.ERROR_INVALID_QUANTITY);
+                                }
+                                return new ValidationResult(true, "");
+                            },
+                            "Enter new quantity: "
+                    );
+                    productToUpdate.setQuantity(newQty);
+                    System.out.println(Error.SUCCESS_QUANTITY_UPDATED);
+                    displayProductTable(productToUpdate);
                     break;
                 case 3:
-                    boolean retryPrice = true;
-                    while (retryPrice) {
-                        System.out.print("Enter new price: ");
-                        String newPrice = scanner.nextLine();
-                        if (isValidPrice(newPrice)) {
-                            productToUpdate.setPrice(newPrice);
-                            System.out.println(Error.SUCCESS_PRICE_UPDATED);
-                            displayProductTable(productToUpdate); // Display updated product in table format
-                            retryPrice = false;
-                        } else {
-                            System.out.println(Error.ERROR_INVALID_PRICE);
-                            retryPrice = askToRetry(); // Ask if the user wants to retry
-                        }
-                    }
+                    // Update price
+                    String newPrice = Validation.getValidatedInput(
+                            scanner::nextLine,
+                            value -> {
+                                if (!isValidPrice(value)) {
+                                    return new ValidationResult(false, Error.ERROR_INVALID_PRICE);
+                                }
+                                return new ValidationResult(true, "");
+                            },
+                            "Enter new price: "
+                    );
+                    productToUpdate.setPrice(newPrice);
+                    System.out.println(Error.SUCCESS_PRICE_UPDATED);
+                    displayProductTable(productToUpdate);
                     break;
                 case 4:
-                    boolean retryNameAll = true;
-                    while (retryNameAll) {
-                        System.out.print("Enter new name: ");
-                        String newNameAll = scanner.nextLine();
-                        if (isValidName(newNameAll)) {
-                            productToUpdate.setName(newNameAll);
-                            retryNameAll = false;
-                        } else {
-                            System.out.println(Error.ERROR_INVALID_NAME);
-                            retryNameAll = askToRetry(); // Ask if the user wants to retry
-                        }
-                    }
+                    // Update all fields
+                    String newNameAll = Validation.getValidatedInput(
+                            scanner::nextLine,
+                            value -> {
+                                if (!isValidName(value)) {
+                                    return new ValidationResult(false, Error.ERROR_INVALID_NAME);
+                                }
+                                return new ValidationResult(true, "");
+                            },
+                            "Enter new name: "
+                    );
+                    productToUpdate.setName(newNameAll);
 
-                    boolean retryQtyAll = true;
-                    while (retryQtyAll) {
-                        System.out.print("Enter new quantity: ");
-                        String newQtyAll = scanner.nextLine();
-                        if (isValidQuantity(newQtyAll)) {
-                            productToUpdate.setQuantity(newQtyAll);
-                            retryQtyAll = false;
-                        } else {
-                            System.out.println(Error.ERROR_INVALID_QUANTITY);
-                            retryQtyAll = askToRetry(); // Ask if the user wants to retry
-                        }
-                    }
+                    String newQtyAll = Validation.getValidatedInput(
+                            scanner::nextLine,
+                            value -> {
+                                if (!isValidQuantity(value)) {
+                                    return new ValidationResult(false, Error.ERROR_INVALID_QUANTITY);
+                                }
+                                return new ValidationResult(true, "");
+                            },
+                            "Enter new quantity: "
+                    );
+                    productToUpdate.setQuantity(newQtyAll);
 
-                    boolean retryPriceAll = true;
-                    while (retryPriceAll) {
-                        System.out.print("Enter new price: ");
-                        String newPriceAll = scanner.nextLine();
-                        if (isValidPrice(newPriceAll)) {
-                            productToUpdate.setPrice(newPriceAll);
-                            retryPriceAll = false;
-                        } else {
-                            System.out.println(Error.ERROR_INVALID_PRICE);
-                            retryPriceAll = askToRetry(); // Ask if the user wants to retry
-                        }
-                    }
+                    String newPriceAll = Validation.getValidatedInput(
+                            scanner::nextLine,
+                            value -> {
+                                if (!isValidPrice(value)) {
+                                    return new ValidationResult(false, Error.ERROR_INVALID_PRICE);
+                                }
+                                return new ValidationResult(true, "");
+                            },
+                            "Enter new price: "
+                    );
+                    productToUpdate.setPrice(newPriceAll);
 
                     System.out.println(Error.SUCCESS_ALL_FIELDS_UPDATED);
-                    displayProductTable(productToUpdate); // Display updated product in table format
+                    displayProductTable(productToUpdate);
                     break;
                 case 5:
                     System.out.println(Error.SUCCESS_EXIT);
@@ -202,21 +214,6 @@ public class ProductDAOImpl implements ProductDAO {
         }
     }
 
-    // Helper method to ask the user if they want to retry
-    private boolean askToRetry() {
-        while (true) {
-            System.out.println("Do you want to try again? (Y/N):");
-            String input = scanner.nextLine().trim().toUpperCase();
-            if (input.equals("Y")) {
-                return true; // Retry
-            } else if (input.equals("N")) {
-                return false; // Stop
-            } else {
-                System.out.println(Error.ERROR_OPTION_INVALID); // Updated constant
-            }
-        }
-    }
-
     // Helper method to display product details in a table format
     private void displayProductTable(Product product) {
         System.out.println("+------------+------------------+------------+------------+------------+");
@@ -226,7 +223,6 @@ public class ProductDAOImpl implements ProductDAO {
                 product.getId(), product.getName(), product.getPrice(), product.getQuantity(), product.getDate());
         System.out.println("+------------+------------------+------------+------------+------------+");
     }
-
 
 
     @Override
