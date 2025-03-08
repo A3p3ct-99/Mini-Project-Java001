@@ -15,8 +15,6 @@ import static org.example.constant.Error.ERROR_OPTION_EMPTY;
 
 
 public class Validation {
-
-
     /**String option = getValidatedInput(scanner::nextLine,
                         value -> {
                             if (!value.matches(REGEX_TABLE_OPTION)) {

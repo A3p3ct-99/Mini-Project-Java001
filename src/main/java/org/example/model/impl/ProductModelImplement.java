@@ -72,12 +72,8 @@ public class ProductModelImplement {
     }
 
     public void updateProduct(ProductEntity product) {
-        String query = "UPDATE products SET name = '" + product.getName() + "', price = " + product.getPrice() + ", quantity = " + product.getQuantity() + ", date = '" + product.getDate() + "' WHERE id = " + product.getId();
-        try (Statement statement = databaseConnectionManager.getConnection().createStatement()) {
-            statement.executeUpdate(query);
-        } catch (SQLException e) {
-            printError("Connection error occurred" + e.getMessage());
-        }
+       
+        
     }
 
     public void deleteProduct(int id) {

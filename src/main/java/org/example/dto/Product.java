@@ -1,5 +1,4 @@
 package org.example.dto;
-
 public class Product {
 
     private String id;

@@ -11,6 +11,9 @@ public class Config {
 
     public static final String REGEX_TABLE_OPTION = "^(?i)(N|P|F|L|G|W|R|U|D|S|Se|sa|Un|Ba|Re|E)$";
     public static final String REGEX_PRODUCT_ID = "[1-9][0-9]*";
+    public static final String REGEX_LETTERS_NUMBERS_SPACES = "[a-zA-Z0-9\\s]+";
+//    public static final String  REGEX_HAVE_SYMBOLS= "^[a-zA-Z0-9\\s]+$";
+
 
     //Enter Message
     public static final String ENTER_OPTION = "Choose an option(): ";
