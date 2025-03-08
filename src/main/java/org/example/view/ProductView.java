@@ -365,7 +365,12 @@ public class ProductView {
                     },
                     "Enter 'si' for save add products, 'su' for save update products or 'b' for back to menu: "
             );
+            if (saveOption.equals("b")) {
+                break;
+            }
             productService.saveProduct(saveOption);
+            System.out.println(ENTER_CONTINUE);
+            scanner.nextLine();
             menu();
         }
     }

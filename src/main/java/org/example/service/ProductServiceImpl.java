@@ -55,14 +55,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void updateProduct(Product product) {
-        var productList = readProductsFromFile(UPDATE_PRODUCT_FILE_NAME);
-        var updatedProduct = productList.stream()
-                .map(p -> p.getId().equals(product.getId()))
-                .toList();
-        if (updatedProduct.isEmpty()) {
-            writeProductToFile(product, UPDATE_PRODUCT_FILE_NAME);
-            return;
-        }
         updateProductToFile(product, UPDATE_PRODUCT_FILE_NAME);
     }
 
@@ -87,9 +79,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void saveProduct(String savedOption) {
-        if (savedOption.equals("b")) {
-            return;
-        }
         var insertedProducts = readProductsFromFile(INSERT_PRODUCT_FILE_NAME);
         var updatedProducts = readProductsFromFile(UPDATE_PRODUCT_FILE_NAME);
         switch (savedOption) {
@@ -107,7 +96,7 @@ public class ProductServiceImpl implements ProductService {
                             product.getDate()
                     );
                     productDAO.addProduct(productEntity);
-                    System.out.println(GREEN + "✅ Product saved successfully." + RESET);
+                    System.out.println(GREEN + "✅\uD83D\uDED2 Product " + product.getId() + " saved successfully."+ RESET);
                     clearProductFile(INSERT_PRODUCT_FILE_NAME);
                 });
             }
@@ -125,7 +114,7 @@ public class ProductServiceImpl implements ProductService {
                             product.getDate()
                     );
                     productDAO.updateProduct(productEntity);
-                    System.out.println(GREEN + "✅ Product updated successfully." + RESET);
+                    System.out.println(GREEN + "✅\uD83D\uDED2 Product " + product.getId() + " updated successfully."+ RESET);
                     clearProductFile(UPDATE_PRODUCT_FILE_NAME);
                 });
             }

@@ -21,7 +21,7 @@ public class TableConfig {
             for (int i = start; i < end; i++) {
                 table.addCell(LIGHT_GREEN + products.get(i).getId(), style);
                 table.addCell(CYAN + ITALIC + products.get(i).getName() , style);
-                table.addCell(RED + ITALIC + products.get(i).getPrice(), style);
+                table.addCell(RED + ITALIC + "$" + products.get(i).getPrice(), style);
                 table.addCell(BLUE + products.get(i).getQuantity(), style);
                 table.addCell(PINK + products.get(i).getDate(), style);
             }
@@ -44,7 +44,7 @@ public class TableConfig {
         printHeaderTable(table, style);
         table.addCell(LIGHT_GREEN + product.getId(), style);
         table.addCell(CYAN + ITALIC + product.getName() , style);
-        table.addCell(RED + ITALIC + product.getPrice(), style);
+        table.addCell(RED + ITALIC + "$" + product.getPrice(), style);
         table.addCell(BLUE + product.getQuantity(), style);
         table.addCell(PINK + product.getDate(), style);
         System.out.println(table.render());
