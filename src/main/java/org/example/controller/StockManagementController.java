@@ -78,6 +78,7 @@ public class StockManagementController {
 
     private void deleteProduct() {
         stockService.deleteProduct();
+        menu();
     }
 
     private void searchProduct() {

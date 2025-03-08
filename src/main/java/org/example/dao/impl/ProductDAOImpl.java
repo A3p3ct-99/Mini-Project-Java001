@@ -52,16 +52,15 @@ public class ProductDAOImpl implements ProductDAO {
     public void deleteProduct() {
         ProductModelImplement productModelImplement = new ProductModelImplement();
         List<ProductEntity>  productEntityList = productModel.getAllProducts();
-        while(true){
-            String input = getValidatedInput(
-                    scanner::nextLine,
-                    value -> {
-                        if(!value.matches(REGEX_DELETE_ID)){
-                            return new ValidationResult(false,"INVALID ID! ZERO, LEADING ZEROS, CONTAINS NOT-DIGIT CHARACTER, EMPTY STRING, IS NOT ALLOWED  ");
-                        }
-                        return  new ValidationResult(true,"");
+        String input = getValidatedInput(
+                scanner::nextLine,
+                value -> {
+                    if(!value.matches(REGEX_DELETE_ID)){
+                        return new ValidationResult(false,"INVALID ID! ZERO, LEADING ZEROS, CONTAINS NOT-DIGIT CHARACTER, EMPTY STRING, IS NOT ALLOWED  ");
+                    }
+                    return  new ValidationResult(true,"");
                     },
-                    "Enter product ID to delete :"
+                "Enter product ID to delete: "
             );
             int productId = Integer.parseInt(input);
             ProductEntity productDeleted = productEntityList.stream().filter(
@@ -83,12 +82,6 @@ public class ProductDAOImpl implements ProductDAO {
             }else {
                 System.out.println(RED + "Product not found with ID: " + productId + RESET);
             }
-            break;
-        }
-
-        ProductDAO service = new ProductDAOImpl();
-        StockManagementController stockManagementController = new StockManagementController(service);
-        stockManagementController.start();
     }
 
     public void printSingleTable(ProductEntity  productEntity)
