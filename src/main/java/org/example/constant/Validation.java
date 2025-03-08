@@ -17,20 +17,29 @@ import static org.example.constant.Error.ERROR_OPTION_EMPTY;
 public class Validation {
 
 
-    /**String option = getValidatedInput(scanner::nextLine,
-                        value -> {
-                            if (!value.matches(REGEX_TABLE_OPTION)) {
-                            return new ValidationResult(false, "Invalid option.");
-                            } else return new ValidationResult(true, "");
-                        },
-                        "Enter  option: "
-     );
+    /**
+     * This method for reusable code to get validated input from user
+     * <br>{@code Example:}
+     * <pre>{@code String option =
+     * getValidatedInput(
+     *   scanner::nextLine,
+     *   value -> {
+     *      if (!value.matches(regex)) {
+     *        return new ValidationResult(false, errorMessage);
+     *      } else
+     *      return new ValidationResult(true, "");
+     *   },
+     *   "Enter  option: "
+     * );
+     *}</pre>
      @Param1 : scanner::nextLine
-     @Param2 : value -> {
-                            if (condition) {
-                            return new ValidationResult(false, "Invalid option.");
-                            } else return new ValidationResult(true, "");
-                        }
+     @Param2 : <pre>{@code
+            value -> {
+                if (condition) {
+                return new ValidationResult(false, errorMessage);
+                } else return new ValidationResult(true, "");
+            }
+     }</pre>
      @Param3 : Message to ask user to input
      */
     public static String getValidatedInput(Supplier<String> input, ValidationPredicate validator, String inputMessage) {
