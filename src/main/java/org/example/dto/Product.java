@@ -15,6 +15,8 @@ public class Product {
         this.date = date;
     }
 
+
+
     public String getId() {
         return id;
     }

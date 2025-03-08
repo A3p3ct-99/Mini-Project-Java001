@@ -1,43 +1,52 @@
 package org.example.service;
-import org.example.utils.ProductUtils;
-import org.example.view.ProductView;
+
+
+
+import org.example.dao.ProductDAO;
 import org.example.dao.ProductDAOImpl;
 import org.example.dto.Product;
 import org.example.model.ProductEntity;
+import org.example.utils.ProductUtils;
 import org.example.validation.ValidationResult;
-import org.nocrala.tools.texttablefmt.BorderStyle;
-import org.nocrala.tools.texttablefmt.CellStyle;
-import org.nocrala.tools.texttablefmt.ShownBorders;
-import org.nocrala.tools.texttablefmt.Table;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 import static org.example.constant.Color.*;
-import static org.example.constant.Color.LIGHT_GREEN;
-import static org.example.constant.Config.*;
-import static org.example.constant.TableConfig.displayProductTable;
+import static org.example.constant.Color.RESET;
+import static org.example.constant.Config.REGEX_DELETE_ID;
+import static org.example.constant.Config.printError;
+import static org.example.constant.TableConfig.displayProductByIdAndName;
 import static org.example.constant.Validation.getValidatedInput;
+import static org.example.utils.ProductUtils.writeProductToFile;
 
 
 public class ProductServiceImpl implements ProductService {
 
-    Scanner scanner = new Scanner(System.in);
+
     List<Product> products = new ArrayList<>();
-    ProductDAOImpl productDAO = new ProductDAOImpl();
+    ProductDAO productDAO = new ProductDAOImpl();
 
     @Override
-    public void writeProduct() {
-
+    public void writeProduct(Product product) {
+        writeProductToFile(product);
     }
 
     @Override
-    public void readProduct() {
-
+    public void readProduct(String id) {
+        int productId = Integer.parseInt(id);
+        var productEntity = productDAO.getProductById(productId);
+        var product = productEntity
+                .map(ProductUtils::getProductFromDatabase)
+                .orElse(null);
+        if (product == null) {
+            printError("Product with id " + productId + " not found.");
+            return;
+        }
+        displayProductByIdAndName(product);
     }
 
     @Override
@@ -46,7 +55,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void deleteProduct() {
+    public void deleteProduct(String id) {
+        int productId = Integer.parseInt(id);
+        productDAO.deleteProduct(productId);
+    }
+
+    @Override
+    public void searchProduct() {
 
     }
 
@@ -65,26 +80,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void setRowTable() {
-        String numRows = getValidatedInput(
-                scanner::nextLine,
-                value -> {
-                    if (!value.matches("\\d+")) {
-                        return new ValidationResult(false, "Invalid input, please enter a number");
-                    }
-                    return new ValidationResult(true, "");
-                },
-                "\n" + ENTER_ROWS
-        );
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("rowTable.txt"))) {
-            writer.write(numRows);
-        } catch (IOException e) {
-            System.out.println("An error occurred " + e.getMessage());
-        }
-    }
-
-    @Override
     public void saveProduct() {
 
     }
@@ -92,6 +87,15 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void unsavedProduct() {
 
+    }
+
+    @Override
+    public void setRowTable(String numRows) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("rowTable.txt"))) {
+            writer.write(numRows);
+        } catch (IOException e) {
+            System.out.println("An error occurred " + e.getMessage());
+        }
     }
 
 
@@ -104,5 +108,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void restoreDatabase() {
 
+    }
+
+    @Override
+    public List<Product> getAllProducts() {
+        var productsEntity = productDAO.getAllProducts();
+        return productsEntity.stream().map(ProductUtils::getProductFromDatabase).toList();
     }
 }

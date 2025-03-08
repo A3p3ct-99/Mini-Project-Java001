@@ -3,7 +3,7 @@ package org.example.view;
 
 import org.example.dto.Product;
 import org.example.functional.Command;
-import org.example.dao.ProductDAOImpl;
+import org.example.model.ProductEntity;
 import org.example.service.ProductService;
 import org.example.utils.ProductUtils;
 import org.example.validation.ValidationResult;
@@ -15,28 +15,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
-import static org.example.constant.Color.RESET;
-import static org.example.constant.Color.YELLOW;
+import static org.example.constant.Color.*;
+import static org.example.constant.Color.RED;
 import static org.example.constant.Config.*;
-import static org.example.constant.Error.ERROR_INVALID_PRODUCT_NAME_EMPTY;
-import static org.example.constant.TableConfig.displayProductTable;
+import static org.example.constant.Error.*;
+import static org.example.constant.TableConfig.*;
 import static org.example.constant.Validation.getValidatedInput;
 import static org.example.constant.Validation.validateMenuOption;
 
 public class ProductView {
 
-    int totalPage = 1;
-    int currentPage = 1;
-
-    private final ProductService stockService;
-    private ProductDAOImpl productView;
-
+    private int totalPage = 1;
+    private int currentPage = 1;
+    private static int lastId = 0;
     Scanner scanner = new Scanner(System.in);
+    private final ProductService productService;
     private final HashMap<String, Command> commands = new HashMap<>();
 
-    public ProductView(ProductService stockService) {
-        this.productView = new ProductDAOImpl();
-        this.stockService = stockService;
+    public ProductView(ProductService productService) {
+        this.productService = productService;
+        lastId = getLastId();
+
         commands.put("n", this::nextPage);
         commands.put("p", this::previousPage);
         commands.put("f", this::firstPage);
@@ -44,7 +43,7 @@ public class ProductView {
         commands.put("g", this::gotoPage);
         commands.put("w", this::insertProduct);
         commands.put("u", this::updateProduct);
-        commands.put("r", this::displayProduct);
+        commands.put("r", this::displayProductById);
         commands.put("d", this::deleteProduct);
         commands.put("s", this::searchProduct);
         commands.put("se", this::setRowTable);
@@ -58,29 +57,145 @@ public class ProductView {
         scanner.close();
     }
 
-    private void menu() {
-        var productsEntity = productView.getAllProducts();
-        List<Product> products = productsEntity.stream().map(ProductUtils::getProductFromDatabase).toList();
+    public void menu() {
+        List<Product> products = productService.getAllProducts();
         handlePagination(products);
     }
 
     private void insertProduct() {
-        stockService.writeProduct();
+        String id = String.valueOf(++lastId);
+        System.out.println("ID: " + id);
+
+        String name = getValidatedInput(
+                () -> scanner.nextLine().trim(),
+                value -> {
+                    if (value.isEmpty()) {
+                        return new ValidationResult(false, "Product name cannot be empty.");
+                    }
+                    else if (!value.matches("^[a-zA-Z0-9 ]+$")) {
+                        return new ValidationResult(false, "Invalid input. Allow only letters and numbers!");
+                    }
+                    return new ValidationResult(true, "");
+                },
+                ENTER_PRODUCT_NAME
+        );
+
+        String price = getValidatedInput(
+                () -> scanner.nextLine().trim(),
+                value -> {
+                    if (value.isEmpty()) {
+                        return new ValidationResult(false, "Price not allowed to be empty.");
+                    }
+                    else if (!value.matches("^\\d+(\\.\\d{1,2})?$")) {
+                        return new ValidationResult(false, "Invalid input. Allow only positive numbers!");
+                    }
+                    return new ValidationResult(true, "");
+                },
+                ENTER_PRODUCT_PRICE
+        );
+
+        String quantity = getValidatedInput(
+                () -> scanner.nextLine().trim(),
+                value -> {
+                    if (value.isEmpty()) {
+                        return new ValidationResult(false, "Quantity not allowed to be empty.");
+                    }
+                    else if (!value.matches(REGEX_PRODUCT_QUANTITY)) {
+                        return new ValidationResult(false, "Invalid input. Allow only numbers up to 8 digits.");
+                    }
+                    return new ValidationResult(true, "");
+                },
+                ENTER_PRODUCT_QUANTITY
+        );
+
+        String date = LocalDate.now().toString();
+
+        Product newProduct = new Product(id, name, price, quantity, date);
+
+        productService.writeProduct(newProduct);
+
+        System.out.println(ENTER_CONTINUE);
+        scanner.nextLine();
+        menu();
     }
 
-    private void updateProduct() {
-        stockService.updateProduct();
+    private int getLastId() {
+        List<Product> products = productService.getAllProducts();
+        return products.stream()
+                .map(Product::getId)
+                .mapToInt(Integer::parseInt)
+                .max()
+                .orElse(0) + 1;
     }
 
-    private void displayProduct() {
-        stockService.readProduct();
+    public void updateProduct() {
+        productService.updateProduct();
     }
 
-    private void deleteProduct() {
-        stockService.deleteProduct();
+    public void displayProductById() {
+        String id = getValidatedInput(
+                scanner::nextLine,
+                value -> {
+                    if (value.isEmpty()) {
+                        return new ValidationResult(false, ERROR_INVALID_ID);
+                    } else if (!value.matches("\\d+")) {
+                        return new ValidationResult(false, ERROR_INVALID_INPUT);
+                    } else if (value.matches("0")) {
+                        return new ValidationResult(false, ERROR_INVALID_ID_GREATER_THAN_ZERO);
+                    }
+                    return new ValidationResult(true, "");
+                },
+                ENTER_ID_SEARCH
+        );
+        productService.readProduct(id);
+        System.out.println(ENTER_CONTINUE);
+        scanner.nextLine();
+        menu();
     }
 
-    private void searchProduct() {
+    public void deleteProduct() {
+        String id = getValidatedInput(
+                scanner::nextLine,
+                value -> {
+                    if(!value.matches(REGEX_DELETE_ID)){
+                        return new ValidationResult(false,"INVALID ID! ZERO, LEADING ZEROS, CONTAINS NOT-DIGIT CHARACTER, EMPTY STRING, IS NOT ALLOWED  ");
+                    }
+                    return  new ValidationResult(true,"");
+                },
+                "Enter product ID to delete: "
+        );
+
+        List<Product> productEntityList = productService.getAllProducts();
+        Product productDeleted = productEntityList.stream()
+                .filter(product -> product.getId().equals(id))
+                .findFirst()
+                .orElse(null);
+
+        if(productDeleted != null){
+            displayProductByIdAndName(productDeleted);
+            String confirmation = getValidatedInput(
+                    scanner::nextLine,
+                    value -> {
+                        if (!value.matches("[yYnN]")) {
+                            return new ValidationResult(false, "Invalid input, please enter Y or N");
+                        }
+                        return new ValidationResult(true, "");
+                    },
+                            "Are you sure want to deleted this product? (Y/N): "
+            );
+            if(confirmation.equals("y")){
+                productService.deleteProduct(productDeleted.getId());
+                System.out.println(GREEN + "Product deleted successfully ✅" + RESET);
+            }else{
+                System.out.println(YELLOW + "Deletion cancelled." + RESET);
+            }
+        }else {
+            System.out.println(RED + "Product not found with ID: " + id + RESET);
+        }
+        menu();
+    }
+
+    public void searchProduct() {
         String name = getValidatedInput(
                 scanner::nextLine,
                 value -> {
@@ -93,7 +208,7 @@ public class ProductView {
                 },
                 ENTER_PRODUCT_NAME
         );
-        stockService.searchProduct(name);
+        productService.searchProduct(name);
         getValidatedInput(
                 scanner::nextLine,
                 value -> new ValidationResult(true, ""),
@@ -102,25 +217,35 @@ public class ProductView {
         menu();
     }
 
-    private void setRowTable() {
-        stockService.setRowTable();
+    public void setRowTable() {
+        String numRows = getValidatedInput(
+                scanner::nextLine,
+                value -> {
+                    if (!value.matches("\\d+")) {
+                        return new ValidationResult(false, "Invalid input, please enter a number");
+                    }
+                    return new ValidationResult(true, "");
+                },
+                "\n" + ENTER_ROWS
+        );
+        productService.setRowTable(numRows);
         menu();
     }
 
     private void saveProduct() {
-        stockService.saveProduct();
+        productService.saveProduct();
     }
 
     private void unsavedProduct() {
-        stockService.unsavedProduct();
+        productService.unsavedProduct();
     }
 
     private void backUpDatabase() {
-        stockService.backUpDatabase();
+        productService.backUpDatabase();
     }
 
     private void restoreDatabase() {
-        stockService.restoreDatabase();
+        productService.restoreDatabase();
     }
 
     private void exit() {
@@ -143,12 +268,16 @@ public class ProductView {
     }
 
     private void nextPage() {
-        currentPage++;
+        if (currentPage < totalPage) {
+            currentPage++;
+        }
         menu();
     }
 
     private void previousPage() {
-        currentPage--;
+        if (currentPage > 1) {
+            currentPage--;
+        }
         menu();
     }
 
