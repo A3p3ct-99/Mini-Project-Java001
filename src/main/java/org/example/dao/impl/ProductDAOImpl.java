@@ -1,11 +1,7 @@
 package org.example.dao.impl;
-
-
-
 import org.example.dao.ProductDAO;
 import org.example.dto.Product;
 import org.example.validation.ValidationResult;
-
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -16,37 +12,36 @@ import java.util.Scanner;
 import static org.example.constant.Config.ENTER_ROWS;
 import static org.example.constant.Validation.getValidatedInput;
 
-
 public class ProductDAOImpl implements ProductDAO {
 
     Scanner scanner = new Scanner(System.in);
     List<Product> products = new ArrayList<>();
 
-
     @Override
-    public void writeProduct() {
+    public void writeProduct(Product product) {
+        products.add(product);
 
+        // Save product to a file you can modify this to use in a database
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("products.txt", true))) {
+            writer.write(product.getId() + "," + product.getName() + "," + product.getPrice() + "," + product.getQuantity() + "," + product.getDate());
+            writer.newLine();
+            System.out.println("Product successfully saved!");
+        } catch (IOException e) {
+            System.out.println("Error saving product: " + e.getMessage());
+        }
     }
 
     @Override
-    public void readProduct() {
-
-    }
+    public void readProduct() {}
 
     @Override
-    public void updateProduct() {
-
-    }
+    public void updateProduct() {}
 
     @Override
-    public void deleteProduct() {
-
-    }
+    public void deleteProduct() {}
 
     @Override
-    public void searchProduct() {
-
-    }
+    public void searchProduct() {}
 
     @Override
     public void setRowTable() {
@@ -69,24 +64,15 @@ public class ProductDAOImpl implements ProductDAO {
     }
 
     @Override
-    public void saveProduct() {
-
-    }
+    public void saveProduct() {}
 
     @Override
-    public void unsavedProduct() {
-
-    }
-
-
-    //Bonus point
-    @Override
-    public void backUpDatabase() {
-
-    }
+    public void unsavedProduct() {}
 
     @Override
-    public void restoreDatabase() {
+    public void backUpDatabase() {}
 
-    }
+    @Override
+    public void restoreDatabase() {}
+
 }

@@ -11,10 +11,14 @@ import org.example.validation.ValidationResult;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
+import static java.lang.Math.floor;
 import static org.example.constant.Color.RESET;
 import static org.example.constant.Color.YELLOW;
 import static org.example.constant.Config.*;
@@ -64,9 +68,91 @@ public class StockManagementController {
         handlePagination(products);
     }
 
+    private static int lastUsedId = 0;
+
     private void insertProduct() {
-        stockService.writeProduct();
+        System.out.println("=> Choose an option() : w");
+        lastUsedId++; // Increment the ID
+        String id = String.valueOf(lastUsedId);
+        System.out.println("ID: " + id);
+
+
+        String name = getValidatedInput(
+                () -> {
+                    System.out.print("Input Product Name: ");
+                    return scanner.nextLine().trim();
+                },
+                value -> {
+                    if (value.isEmpty()) {
+                        return new ValidationResult(false, "Product name cannot be empty.");
+                    }
+                    if (!value.matches("^[a-zA-Z0-9 ]+$")) {
+                        return new ValidationResult(false, "Invalid input. Allow only letters and numbers!");
+                    }
+                    return new ValidationResult(true, "");
+                },
+                "Input Product Name: "
+        );
+
+        String price = getValidatedInput(
+                () -> {
+                    System.out.print("Enter price: ");
+                    return scanner.nextLine().trim();
+                },
+                value -> {
+                    if (value.isEmpty()) {
+                        return new ValidationResult(false, "Price not allowed to be empty.");
+                    }
+                    if (!value.matches("^\\d+(\\.\\d{1,2})?$")) {
+                        return new ValidationResult(false, "Invalid input. Allow only positive numbers!");
+                    }
+                    return new ValidationResult(true, "");
+                },
+                "Enter price: "
+        );
+
+        String quantity = getValidatedInput(
+                () -> {
+                    System.out.print("Enter quantity: ");
+                    return scanner.nextLine().trim();
+                },
+                value -> {
+                    if (!value.matches("^\\d{1,8}$")) {
+                        return new ValidationResult(false, "Invalid input. Allow only numbers up to 8 digits.");
+                    }
+                    return new ValidationResult(true, "");
+                },
+                "Enter quantity: "
+        );
+
+
+        String date = java.time.LocalDate.now().toString();
+
+
+        Product newProduct = new Product(id, name, price, quantity, date);
+
+
+        stockService.writeProduct(newProduct);
+
+
+        System.out.println("Enter to continue.....");
+        scanner.nextLine();
+        menu();
     }
+    private String getValidatedInput(Supplier<String> inputSupplier, Function<String, ValidationResult> validator, String prompt) {
+        while (true) {
+            String input = inputSupplier.get();
+            ValidationResult result = validator.apply(input);
+            if (result.isValid()) {
+                return input;
+            }
+            System.out.println("Invalid input. " + result.getErrorMessage());
+        }
+    }
+
+
+
+
 
     private void updateProduct() {
         stockService.updateProduct();
@@ -125,12 +211,16 @@ public class StockManagementController {
     }
 
     private void nextPage() {
-        currentPage++;
+        if (currentPage < totalPage) {
+            currentPage++;
+        }
         menu();
     }
 
     private void previousPage() {
-        currentPage--;
+        if (currentPage > 1) {
+            currentPage--;
+        }
         menu();
     }
 
@@ -146,14 +236,14 @@ public class StockManagementController {
 
     private void gotoPage() {
         String input = getValidatedInput(
-            scanner::nextLine,
-            value -> {
-                if (!value.matches("\\d+")) {
-                    return new ValidationResult(false, "Invalid input, please enter a number");
-                }
-                return new ValidationResult(true, "");
-            },
-            ENTER_PAGE_NUMBER
+                scanner::nextLine,
+                value -> {
+                    if (!value.matches("\\d+")) {
+                        return new ValidationResult(false, "Invalid input, please enter a number");
+                    }
+                    return new ValidationResult(true, "");
+                },
+                ENTER_PAGE_NUMBER
         );
         int page = Integer.parseInt(input);
         if (page < 1 || page > totalPage) {

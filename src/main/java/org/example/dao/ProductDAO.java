@@ -1,7 +1,9 @@
 package org.example.dao;
 
+import org.example.dto.Product;
+
 public interface ProductDAO {
-    void writeProduct();
+    void writeProduct(Product product); // Updated to accept a Product parameter
     void readProduct();
     void updateProduct();
     void deleteProduct();
