@@ -218,18 +218,6 @@ public class ProductDAOImpl implements ProductDAO {
         }
     }
 
-    // Helper method to display product details in a table format
-    private void displayProductTable(Product product) {
-        System.out.println("+------------+------------------+------------+------------+------------+");
-        System.out.println("| Product ID | Name             | Price      | Quantity   | Date       |");
-        System.out.println("+------------+------------------+------------+------------+------------+");
-        System.out.printf("| %-10s | %-16s | %-10s | %-10s | %-10s |\n",
-                product.getId(), product.getName(), product.getPrice(), product.getQuantity(), product.getDate());
-        System.out.println("+------------+------------------+------------+------------+------------+");
-    }
-
-
-
 
     @Override
     public void writeProduct() {
