@@ -1,10 +1,10 @@
-package org.example.controller;
+package org.example.view;
 
 
 import org.example.dto.Product;
 import org.example.functional.Command;
-import org.example.model.impl.ProductModelImplement;
-import org.example.dao.ProductDAO;
+import org.example.dao.ProductDAOImpl;
+import org.example.service.ProductService;
 import org.example.utils.ProductUtils;
 import org.example.validation.ValidationResult;
 
@@ -18,23 +18,24 @@ import java.util.Scanner;
 import static org.example.constant.Color.RESET;
 import static org.example.constant.Color.YELLOW;
 import static org.example.constant.Config.*;
+import static org.example.constant.Error.ERROR_INVALID_PRODUCT_NAME_EMPTY;
 import static org.example.constant.TableConfig.displayProductTable;
 import static org.example.constant.Validation.getValidatedInput;
 import static org.example.constant.Validation.validateMenuOption;
 
-public class StockManagementController {
+public class ProductView {
 
     int totalPage = 1;
     int currentPage = 1;
 
-    private final ProductDAO stockService;
-    private ProductModelImplement productView;
+    private final ProductService stockService;
+    private ProductDAOImpl productView;
 
     Scanner scanner = new Scanner(System.in);
     private final HashMap<String, Command> commands = new HashMap<>();
 
-    public StockManagementController(ProductDAO stockService) {
-        this.productView = new ProductModelImplement();
+    public ProductView(ProductService stockService) {
+        this.productView = new ProductDAOImpl();
         this.stockService = stockService;
         commands.put("n", this::nextPage);
         commands.put("p", this::previousPage);
@@ -80,7 +81,25 @@ public class StockManagementController {
     }
 
     private void searchProduct() {
-        stockService.searchProduct();
+        String name = getValidatedInput(
+                scanner::nextLine,
+                value -> {
+                    if (value.isEmpty()) {
+                        return new ValidationResult(false, ERROR_INVALID_PRODUCT_NAME_EMPTY);
+                    } else if (!value.matches(REGEX_LETTERS_NUMBERS_SPACES)) {
+                        return new ValidationResult(false, "ERROR_INVALID_PRODUCT_NAME_INVALID");
+                    }
+                    return new ValidationResult(true, "");
+                },
+                ENTER_PRODUCT_NAME
+        );
+        stockService.searchProduct(name);
+        getValidatedInput(
+                scanner::nextLine,
+                value -> new ValidationResult(true, ""),
+                "Enter to continue..."
+        );
+        menu();
     }
 
     private void setRowTable() {

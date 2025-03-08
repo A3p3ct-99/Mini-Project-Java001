@@ -1,13 +1,13 @@
 package org.example;
-import org.example.controller.StockManagementController;
-import org.example.dao.ProductDAO;
-import org.example.dao.impl.ProductDAOImpl;
+import org.example.view.ProductView;
+import org.example.service.ProductService;
+import org.example.service.ProductServiceImpl;
 
 public class Main {
     public static void main(String[] args) {
-        ProductDAO service = new ProductDAOImpl();
-        StockManagementController stockManagementController = new StockManagementController(service);
-        stockManagementController.start();
+        ProductService service = new ProductServiceImpl();
+        ProductView productView = new ProductView(service);
+        productView.start();
 
     }
 }

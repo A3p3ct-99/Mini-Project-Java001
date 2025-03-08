@@ -1,11 +1,11 @@
-package org.example.dao;
+package org.example.service;
 
-public interface ProductDAO {
+public interface ProductService {
     void writeProduct();
     void readProduct();
     void updateProduct();
     void deleteProduct();
-    void searchProduct();
+    void searchProduct(String name);
     void setRowTable();
     void saveProduct();
     void unsavedProduct();

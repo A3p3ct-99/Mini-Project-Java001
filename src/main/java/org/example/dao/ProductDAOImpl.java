@@ -1,9 +1,10 @@
-package org.example.model.impl;
+package org.example.dao;
 
 
 import org.example.domain.DatabaseConnectionManager;
 import org.example.model.ProductEntity;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -14,11 +15,11 @@ import java.util.Optional;
 import static org.example.constant.Config.printError;
 
 
-public class ProductModelImplement {
+public class ProductDAOImpl {
 
     private final DatabaseConnectionManager databaseConnectionManager;
 
-    public ProductModelImplement() {
+    public ProductDAOImpl() {
         this.databaseConnectionManager = new DatabaseConnectionManager();
     }
 
@@ -42,22 +43,26 @@ public class ProductModelImplement {
         return Optional.empty();
     }
 
-    public Optional<List<ProductEntity>> getProductsByNameIgnoreCase(String name) {
-        String query = "SELECT * FROM products WHERE LOWER(name) = LOWER('" + name + "')";
-        try (Statement statement = databaseConnectionManager.getConnection().createStatement();
-             ResultSet resultSet = statement.executeQuery(query)) {
-            if (resultSet.next()) {
-                ProductEntity product = new ProductEntity(
-                        resultSet.getInt("id"),
-                        resultSet.getString("product_name"),
-                        resultSet.getDouble("unit_price"),
-                        resultSet.getInt("quantity"),
-                        resultSet.getDate("created_at").toLocalDate()
-                );
-                return Optional.of(List.of(product));
+    public Optional<List<ProductEntity>> getProductsContainNameIgnoreCase(String name) {
+        String query = "SELECT * FROM products WHERE product_name ILIKE ?";
+        try (PreparedStatement statement = databaseConnectionManager.getConnection().prepareStatement(query)) {
+            statement.setString(1, "%" + name + "%");
+            try (ResultSet resultSet = statement.executeQuery()) {
+                List<ProductEntity> products = new ArrayList<>();
+                while (resultSet.next()) {
+                    ProductEntity product = new ProductEntity(
+                            resultSet.getInt("id"),
+                            resultSet.getString("product_name"),
+                            resultSet.getDouble("unit_price"),
+                            resultSet.getInt("quantity"),
+                            resultSet.getDate("created_at").toLocalDate()
+                    );
+                    products.add(product);
+                }
+                return Optional.of(products);
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            printError("Connection error occurred" + e.getMessage());
         }
         return Optional.empty();
     }
